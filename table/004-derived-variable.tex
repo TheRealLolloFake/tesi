@@ -1,0 +1,18 @@
+	\begin{table}[h!]
+		\begin{center}
+			
+			\begin{tabularx}{\textwidth}{|l|X|}
+				\hline
+				\textbf{Name} & \textbf{Description}\\\hline
+				\texttt{MAX\_TRANSMIT\_SPAN} & Is the maximum time from the first transmission of a CON message to its last.\\\hline
+				\texttt{MAX\_TRANSMIT\_WAIT} & Is the maximum time from the first transmission of a CON message to when the sender gives up on receiving an ACK or RST.\\\hline
+				\texttt{MAX\_LATENCY} & Is the maximum time a datagram is expected to take from the sender to the recipient.\\\hline
+				\texttt{PROCESSING\_DELAY} & Is the expected time a node will take to send back an ACK to a received CON message.\\\hline
+				\texttt{MAX\_RTT} & Maximum round trip time.\\\hline
+				\texttt{EXCHANGE\_LIFETIME} & Is the time from starting to send a CON message to when an ACK is no longer expected.\\\hline
+				\texttt{NON\_LIFETIME} & Is the time from starting to send a NON message to when its Message ID can be safely used again.\\\hline
+			\end{tabularx}
+			\caption{Derived variables defined in CoAP.}
+			\label{tab:table4}
+		\end{center}
+	\end{table}	

@@ -1,0 +1,19 @@
+	\begin{table}[h!]
+		\begin{center}
+			\begin{tabularx}{\textwidth}{|l|X|}
+				\hline
+				\textbf{Method} & \textbf{Description} \\\hline
+				GET & A GET request requires the proxy to return a representation of the HTTP resource specified in the Proxy-Uri Option.
+				On success, the proxy should return a 2.05 response.\\\hline
+				POST & It requests the proxy to create a new resources based on the payload provided with the request.
+				If the resource has been created, the proxy must return a 2.01 response.
+				On the other hand if no new resource is created it must return a 2.04 response.\\\hline
+				PUT & It requests the proxy to update or create an HTTP resource identified by the URI specified in the Proxy-Uri Option.
+				If a new resource is created, the proxy must return a 2.01 response, in case an existing resource has been modified, it must return a 2.04 response.\\\hline
+				DELETE & It requests the proxy to delete the HTTP resource identified by the URI specified in the Proxy-Uri Option.
+				It must return a 2.02 response on success, and even if the resource did not exist.\\\hline
+			\end{tabularx}
+			\caption{Mapping of CoAP's methods to HTTP.}
+			\label{tab:table8}
+		\end{center}
+	\end{table}

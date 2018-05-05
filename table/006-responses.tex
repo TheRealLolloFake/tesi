@@ -1,0 +1,92 @@
+
+\begin{longtable}{|l|X|}
+\hline \textbf{Name} & \textbf{Description}\\ \hline 
+\endfirsthead
+
+
+\multicolumn{2}{c}%
+{\tablename\ \thetable{} -- continued from previous page} \\
+\hline \textbf{Name} & \textbf{Description}\\ \hline 
+\endhead
+
+\hline \multicolumn{2}{|c|}{{Continued on next page}} \\ \hline
+\endfoot
+
+\endlastfoot
+
+2.01 Created & It is like the HTTP 201 Created, but only used in response to POST and PUT requests.
+If the response has a payload, it is a representation of the action result.
+If the response has one or more Location-Path or Location-Query options, these options specify where the resource was created; otherwise the resource is created at the URI specified in the request.
+If a cache receives this response, it must mark any other response for this specific resource as not fresh.
+This response is not cacheable.\\\hline
+
+2.02 Deleted & It is like HTTP 204 No Content, but only used in response to requests that cause the deletion of a resource, like DELETE or POST.
+If the response has a payload, it is a representation of the action result.
+This response is not cacheable, and a cache must mark any stored response for the deleted resource as not fresh.\\\hline
+
+2.03 Valid & It is like HTTP 304 Not Modified, but only used to specify that the response identified by the entity-tag in the ETag option is valid.
+The response must include an ETAG and must not have a payload.
+If a cache recognizes and processes the ETag option, it must update the stored response with the value of Max-Age option include in the response.\\hline
+
+2.04 Changed & It is like HTTP 204 No Content, but only used in response to POST and PUT.
+If the response has a payload, it is a representation of the action result.
+The response is not cacheable, and a cache must mark any stored response for the changed resource as not fresh.\\\hline
+
+2.05 Content & It is like HTTP 200 Ok, but only used in response to GET requests.
+The payload returned is the representation of the target resource.
+This response is cacheable and the Max-Age Option is used to determine its freshness.
+An ETag Option is used for validation.\\\hline
+
+\textbf{4.xx Client Error} & The request was received but contains error and it was not possible to fulfill it.
+The responses of this class are cacheable, and the Max-Age Option is used to determine the freshness.
+They cannot be validated with the aid of an ETag.\\\hline
+
+4.00 Bad Request & It is like HTTP 400 Bad Request.
+It means that the request performed by the client is wrong or incomplete.\\\hline
+
+4.01 Unauthorized & It means that the client is not authorized to perform the requested action, the client should not repeat the request if it does not improve its authentication status.\\\hline
+
+4.02 Bad Option & It means that the request performed by the client has not been understood by the server, the client should not repeat the request if it does not edit it.\\\hline
+
+4.03 Forbidden & It is like HTTP 403 Forbidden, the request is legitimate but the server refuses to serve it.\\\hline
+
+4.04 Not Found & It is like HTTP 404 Not Found, the requested resource is not available.\\\hline
+
+4.05 Method Not Allowed &	It is like HTTP 405 Method Not Allowed.
+The selected method is not allowed for the specified resource.\\\hline
+
+4.06 Not Acceptable & It is like HTTP 406 Not Acceptable.\\\hline
+
+4.12 Precondition Failed & It is like HTTP 412 Precondition Failed.
+It means that the server does not satisfy one of the preconditions specified by the client.\\\hline
+
+4.13  Request Entity Too Large & It is like HTTP 413 Request Entity Too Large.
+It should include a Size1 Option in order to specify the maximum size of the request that could be handled by the server.\\\hline
+
+4.15 Unsupported Content-Format & It is like HTTP 415 Unsupported Media Type.
+The entity of a request is not accepted by the server or by the resource.\\\hline
+
+\textbf{5.xx Server Error} & The request was received, understood but the server failed to fulfill it.
+The server should include a diagnostic payload.
+These responses are cacheable, and the Max-Age Option is used to determine the freshness.
+They cannot be validated with the aid of an ETag.\\\hline
+
+5.00 Internal server error &	It is like the HTTP 500 Internal server error.
+It means that, at the moment, the server is able to fulfill the received request.\\\hline
+
+5.01 Not Implemented & It is like the HTTP 502 Internal server error.
+It means that the server does not support the method specified in the request.\\\hline
+
+5.02 Bad Gateway & It is like the HTTP 503 Bad Gateway.\\\hline
+
+5.03 Service Unavailable & It is like the HTTP 504 Service Unavailable.
+In CoAP the Max-Age Option is used in place of the Retry-After header field used in HTTP.\\\hline
+
+5.04 Gateway Timeout & It is like the HTTP 504 Gateway Timeout.\\\hline
+
+5.05 Proxying Not Supported	& The server is not able to act as forward-proxy for the URI specified in the option Proxy-Uri or Proxy-Scheme.\\\hline
+
+
+\caption{Response code defined in CoAP.}
+\label{tab:table6}
+\end{longtable}

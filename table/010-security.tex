@@ -1,0 +1,28 @@
+	\begin{table}[h!]
+		\begin{center}
+			\begin{tabularx}{\textwidth}{|l|X|}
+				\hline
+				NoSec & In this mode there is no security because DTLS is disabled.
+				Basically, messages are sent over the normal UDP channel and the coap scheme is used.\\\hline
+				PreSharedKey & DTLS is enabled and the device has a list of pre-shared keys that it uses to communicate with the other nodes in the network.
+				It is possible to have a one key for each node in the network but it may be not possible for memory constraint.
+				It uses the coaps scheme.
+				When an endpoint starts a communication with another endpoint an appropriate key is selected.
+				The cipher suite must implement \texttt{TLS\_PSK\_WITH\_AES\_128\_CCM\_8}.\\\hline
+				RawPublicKey & DTLS is enabled and the device has an asymmetric key but no certificate.
+				It uses the coaps scheme.
+				The symmetric key is generated and installed by the manufacturer of the device.
+				A device may have multiple public keys.
+				The cipher suite must implement \texttt{TLS\_ECDHE\_ECDSA\_WITH\_AES\_128\_CCM\_8}.\\\hline
+				Certificate & DTLS is enabled and the device has an asymmetric key and a signed certificate.
+				The device has a list of root trust that it uses to validate the certificate.
+				It uses the coaps scheme.
+				The certificate needs to be verified when a new connection is created, if the CoAP node is capable of computing an absolute time, then the node should check the validity of the certificate.
+				The cipher suite must implement \texttt{TLS\_ECDHE\_ECDSA\_WITH\_AES\_128\_CCM\_8}.\\\hline
+				
+				
+			\end{tabularx}
+			\caption{Security options available in CoAP.}
+			\label{tab:table10}
+		\end{center}
+	\end{table}

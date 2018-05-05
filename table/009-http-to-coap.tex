@@ -1,0 +1,22 @@
+	\begin{table}[h!]
+		\begin{center}
+			\begin{tabularx}{\textwidth}{|l|X|}
+				\hline
+				\textbf{Method} & \textbf{Description} \\\hline
+				OPTION & Not supported, a 501 error must be returned.\\\hline
+				TRACE & Not supported, a 501 error must be returned.\\\hline
+				CONNECT & Not supported, a 501 error must be returned.\\\hline
+				GET & It must return a 200 Ok response upon success.
+				The payload must be a representation of the target CoAP resource.\\\hline
+				HEAD & The HEAD method is identical to GET, but the server must not return a message body in the response, it could be implemented with a CoAP GET request and the proxy will then strip the payload from the CoAP response.\\\hline
+				POST & It requests the proxy to perform a POST request to the CoAP server, the actual task performed is defined by the CoAP server and not by the protocol.
+				If the result does not create a new resource a 200 Ok response or a 204 No Content response must be returned.
+				If the result creates a new resource, a 201 Created response must be returned.\\\hline
+				PUT & The PUT method requests the proxy to update or create the CoAP resource identified by the Request-URI.\\\hline
+				DELETE & It requests the proxy to delete the CoAP resource identified by the URI in the Request-URI Option.\\\hline
+				
+			\end{tabularx}
+			\caption{Mapping of HTTP's methods to CoAP.}
+			\label{tab:table9}
+		\end{center}
+	\end{table}
