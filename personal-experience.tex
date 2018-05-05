@@ -1,0 +1,65 @@
+\section{Personal experience in the company}
+
+During my internship at Abo Data I had the opportunity to work on different real world application and I was able to notice some security problem that I fixed.\newline
+In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage for Abo Data.
+
+\subsection{Problems detected}
+Application 1 is a web application that suffered four important flaws:
+\begin{enumerate}
+	\item It trusted user’s input
+	\item It did not check user’s privilege
+	\item The passwords were stored with symmetric cryptography
+	\item Passwords were handled as String
+\end{enumerate}
+
+The first flaw allowed a malicious user to log into the system with higher privilege by simply changing a line of code in the JavaScript code on the client side.\newline
+The system was designed in this way: the client sends username, password and the privilege level to the server, at the beginning the privilege level is set to 0, but if the login is successful, then this value is update with the real level of the user.\newline
+The user’s privilege level was needed on the client side in order to choose which options to show to the user based on his actual privileges, so the application did not show to the user all the features, but they were available for use but hidden.\newline
+Of course, by setting the privilege level to the maximum, it was possible to access all the features of the application without restriction.\newline
+All the functionalities, reserved to high privilege user, were available to users with low privilege because on the server side there was no check of the user privilege.\newline
+The controls were on the client side, but by simply changing a line of code it was possible to bypass them, and the server trusted the input because it assumed the client was not corrupt.\newline
+In order to fix this flaw the login method on the server was modified in order to use the data from the DB instead of the one provided by the client.\newline
+
+The second flaw is strictly related with the first one, as the server trusted the client, it did not check if the user has the right privilege to perform a certain action.\newline
+Basically, the server received a request and performed it without any control about the user who sent it.\newline
+In order to fix this flaw it was necessary to add control on top of each method that performed an action that required a certain privilege.\newline
+One side effect of this problem forced us to re-design the token management of the application, that is because during the login the user was associated with the privilege level sent by the client, so adding the control was not enough, in fact if a malicious user log into the system with an high privilege level, the server will trust him and associate a token with his fake privilege level.\newline
+In order to make it work properly it was necessary to associate the privilege level saved in the database.\newline
+
+The third flaw was the easiest to fix because it required changing only one part of the code.\newline
+The passwords were saved on the DB with the aid of symmetric cryptography; the encryption key was stored in a configuration file.\newline
+Saving passwords in this way is not secure because symmetric cryptography is, by design, reversible; a password must be stored on a DB with the aid of one way function, like a hash function or a key derivation function.\newline
+To fix this flaw we replaced the symmetric cryptography algorithm with a key derivation function, the DB required some change in order to store the number of iteration and the salt.\newline
+The fourth flaw was another easy one because it required replacing String with array of char, this change was needed in order to minimize the exposure of sensible data and to reduce the success of cold boot attack.\newline
+
+These four flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some component of an application are strictly related each other.
+
+\subsection{Analysis of the security aspect}
+During the internship I noticed that the security aspect during the development of an application is not easy as it could seems.\newline
+From an academic point of view, making a secure application is the main goal, but from a business perspective, the same goal is not so easy to reach because there are other factors that must be kept in mind.\newline
+If you are developing an application by yourself and for yourself, you have no deadline, no customers to meet and no budget limitations.\newline
+On the other hand, if you are in a company, you are developing an application for a customer you must take care of:
+\begin{itemize}
+	\item Relationship with the him
+	\item Deadlines
+	\item Support for the application for a certain period of time
+\end{itemize}
+
+In order to maintain a solid relationship with your costumer, deadlines must be respected, and here the development of the application comes to play; including security in the development of an application may seems easy at the beginning, but it is not so simple as it may seems and it may cost lots of time, and when there is a deadline the goal is to finish the job, no matter if the application is secure or not.\newline
+This is one reason why some developers simply avoid security aspect during the development of an application.\newline
+
+Another reason is about money, some customers are not interested or not even aware about security issues that an application could have, so they are not simply interested in paying for it, but when a security flaws occurs they will surely come yelling at you.\newline
+In this case, I think that if you could add security to an application and the time spent is equal to the time spent in making the same thing in an unsecure way, then I suggest you to go for the secure way.\newline
+Of course if something requires lots of time, avoid it or talk about it with the customer and convince him to pay for the additional security features.\newline
+Usually, when company A sells an application to company B, company A provides a technical support for a certain period of time, it means that company A must adjust the software if something is not working properly, and it should provide updates.
+If there is no time to add a certain feature at the first release, it could be added later with an update.\newline
+
+During the development of software, it is common that the development team adopts certain software development process; Abo Data adopted an agile software development process.\newline
+From what I have noticed it is the right choice because the application requirements are changing frequently, but from the security point of view I think it is a bit problematic and could lead to flaws in the code.\newline
+The security part on an application should be defined in way that allows the development team to edit it at least as possible.\newline
+
+The security part should also be developed with particular care in order to be updated easily in the future, suppose that the hashing algorithm you are using in your application is marked as unsecure for some reasons, then you should update your application, but of course an update has a cost and requires a certain amount of time in order to be completed, if the code is monolithic it will be difficult and expensive to update, on the other hand if the code is modular it will be easy.\newline
+Another thing to take in mind is that in the IoT world we also deal with constrained devices, if for some reason you need to change the algorithm for a new one you should check if your constrained devices are capable of handling the new algorithm, otherwise you should stick with the old algorithm or use powerful devices. Of course here you have to find a trade-off.\newline
+From my experience I noticed that implementing a security feature or fixing a security flaws is difficult in software that is in an advanced stage of development, it may require substantial changes to the whole project, this could slow down the development and it could be difficult to respect the deadline.\newline
+Basically, security should be part of the application since the requirements phase, or big problem will emerge later on.\newline
+

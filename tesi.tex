@@ -1,0 +1,58 @@
+\documentclass{article}
+
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{lscape} 
+\usepackage{ltxtable}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+
+\newcolumntype{T}{>{\Centering\arraybackslash}X} % centered "X" column
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
+
+\setlength{\parindent}{0in}
+
+ \lstset{
+ 	frame=tb,
+	breaklines=true,
+	showstringspaces=false,
+	columns=flexible,
+	tabsize=2
+}
+
+
+
+\title{My thesis}
+\author{Loris Cortesi}
+
+
+\begin{document}
+	\maketitle
+	\newpage
+	\tableofcontents
+	\listoffigures
+	\listoftables
+	\pagenumbering{arabic}
+	\newpage
+	
+	\input{introduction}
+	
+	\input{constrained-network}
+	
+	\input{coap}
+	
+	\input{websocket}
+	
+	\input{vulnerabilities}
+	
+	\input{best-practice}
+	
+	\input{personal-experience}
+	
+	\bibliography{tesiref} 
+	\bibliographystyle{ieeetr}
+	
+\end{document}
