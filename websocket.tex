@@ -1,6 +1,11 @@
 \section{WebSocket}
-WebSocket is a communication protocol defined by the IETF in RFC 6455, it provides full-duplex communication channel over a single TCP connection between two hosts.\newline
-When there was no WebSocket the easy way to implement a web application which required a constant flow of information from the server to the client was achieved with the long polling technique, it worked but was very inefficient because it opened lots of connection instead of only one; basically WebSocket was designed to substitute the long polling technique and making real time data transfer possible with very low overhead.\newline
+In this section we will analyze WebSocket and its main features, in order to make the reading more comfortable,
+we will skip some technical details that are not crucial to the understanding of basic concept of the protocol as for CoAP.\newline
+In case you find yourself interested by WebSocket and you want to examine all the details you can consult
+the RFC 6455 defined by IETF. \newline
+
+WebSocket is a communication protocol which provides full-duplex communication channel over a single TCP connection between two hosts.\newline
+When there was no WebSocket the easy way to implement a web application which required a constant flow of information from the server to the client was achieved with the long polling technique; it worked, but was very inefficient because it opened lots of connection instead of only one; basically WebSocket was designed to substitute the long polling technique and making real time data transfer possible with very low overhead.\newline
 
 WebSocket is different from HTTP but it shares some similarities, for instance it works on port 80 and 443 such as HTTP, and it uses similar headers.\newline
 
@@ -8,9 +13,7 @@ This protocol is designed to coexist with HTTP, the fact that they share the sam
 
 In WebSocket the server has a standard way to send content to the client without a previous request from the client, excluding the first request sent in order to create the connection.\newline
 
-Now days every mainstream browser supports WebSocket, from the server point of view it must support them in order to make the web application work.\newline
-
-In WebSocket there is no concept of message, for this reason everything is considered as a stream of byte.\newline
+Now days every mainstream browser supports WebSocket; of course the server must support WebSocket in order to make the web application work.\newline
 
 \subsection{Protocol overview}
 The WebSocket protocol is designed to be nothing more than a layer on top of TCP, it only adds the following features:
@@ -90,28 +93,6 @@ After checking the request as defined above, if the server chooses to accept the
 	\item An optional Sec-WebSocket-Extension header field with the extension value choosed by the server.
 \end{itemize}
 
-We talked about the hash that must be included in the \texttt{Sec-WebSocket-Accept} header in the server’s response.\newline
-The server takes the content in the header \texttt{Sec-WebSocket-Key} and we call it $key$, the server remove any leading and trailing whitespace.\newline
-
-Then $key$ it must be concatenated with the GUID:
-$258EAFA5-E914-47DA-95CA-C5AB0DC85B11$ which we call $guid$.
-We call $keyGuid$ the concatenation of $key$ and $guid$.
-
-\begin{equation}
-	keyGuid=key+guid
-\end{equation}
-
-Then a 160 bits SHA-1 hash is calculated from $keyGuid$.
-\begin{equation}
-	hash=SHA1(keyGuid)
-\end{equation}
-After that the hash is converted in a base 64 string in order to be included in the header.
-\begin{equation}
-	base64(hash)
-\end{equation}
-
-This base 64 string is then placed as the value of the Sec-WebSocket-Accept header, any other value different from the expected hash must be considered as a refused connection by the server.\newline
-
 When the client receives the server’s response it must validate it in this way:
 \begin{itemize}
 	\item If the status code of the response is not 101, it handles the response with the proper HTTP procedure implemented for the specified code.
@@ -175,19 +156,7 @@ A WebSocket frame is defined by the following fields:
 
 %aggiungere schema payload 
 
-The masking does not change the length of the Payload data; we will now describe the algorithm to mask and unmask data.
-We define the original data as $original$ and with $original[i]$ we mean the $i-th$ octet that form our original data.
-We define the masked data as masked and it is calculated in this way:
-
-\begin{equation}
-	j=i mod 4
-\end{equation}
-
-\begin{equation}
-masked[i]=original[i] \oplus maskingKey[j]
-\end{equation}
-
-Where $maskingKey$ is the 32 bit masking key.
+The masking does not change the length of the Payload data.\newline
 
 The primary purpose of fragmentation is to allow the client and server to allocate a reasonable size buffer in order to avoid a continuous resize of the message buffer.\newline
 When the buffer is full, the fragment is written to the network.\newline
@@ -233,7 +202,7 @@ If a frame is part of a fragmented message, then the Application data of the sub
 When the last fragment is received, it is indicated by the frame-fin, then a message is received.\newline
 
 \subsection{Closing handshake}
-In other to close the connection properly there is also a closing handshake procedure, the client or
+To close the connection properly there is also a closing handshake procedure: the client or
 the server can send a control frame with a specified control sequence in order to begin the closing procedure.\newline
 
 The closing handshake can be initiated by both simultaneously without any problem.\newline
@@ -244,7 +213,7 @@ It works in the following way:
 \end{itemize}
 
 \textbf{Note:} even the server can start the closing handshake so it is not mandatory for the client to be one that starts the closing procedure.\newline
-After sending the control frame that will end the connection the peer does not send any other data over the channel.
+After sending the control frame that will end the connection, the peer does not send any other data over the channel.
 
 \subsection{Origin security model}
 In order to avoid attack, the WebSocket protocol uses the origin security model used by web browser in order
@@ -277,4 +246,4 @@ If a server is not intended to process input from any web page but from certain 
 Of course if an attack sends a request with the proper Origin header the request will be accepted, but it was designed to avoid fake WebSocket connection inside a browser environment, not from a non-browser client.\newline
 
 \subsection{Implementation and real world application}
-
+to do...

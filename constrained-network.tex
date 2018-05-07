@@ -1,20 +1,28 @@
 	\section{Constrained node network}
-	A constrained device is small, has low computational power and little memory.
-	Basically, it lacks the resources that we could expect from a basic Internet node.\newline
-	Optimization of power consumption and bandwidth is extremely important; even the maximum code complexity and the maximum RAM available must be taken into account.\newline
-	When a constrained device is attached to a network it is identified as a constrained node, lots of constrained nodes form a network that may have some constraint such as: unreliability, lossy channel, dynamic topology and unpredictable bandwidth.\newline
-	A constrained network is characterized by: low bandwidth, high packet loss and asymmetric link characteristics, absence of multicast communication and high penalties in using large packets.\newline
-	A network is called constrained-node network when the constraints are imposed by the node.
+	In this little section we will describe what is a constrained device and what is a constrained node network,
+	these two concepts are important because they are recurrent and without a proper introduction, you may have
+	some doubts. \newline
+	
+	A constrained device is small, has low computational power and little memory, it virtually lacks the resources
+	we could expect from a modern Internet node; examples of constrained device are: sensors, dated micro-controller and hardware platform like Arduino.\newline
+	While dealing with these devices optimization is crucial on various front: the power consumption is not negligible,
+	and the same can be said about the bandwidth usage (if available), even the maximum code complexity and the total RAM available are parameters that we must take into account.\newline
+	When a constrained device is attached to a network it is also identified as a constrained node, two or more nodes form a network that may have some constraints such as: unreliability, lossy channel, dynamic topology and unpredictable bandwidth, and these constraints characterize the constrained network.\newline
+	In order to be more precise, a network is a constrained-node network when the constraints are imposed by the node
+	and not by the network itself.
 	
 	\input{table/001-constrained-classification}
 	
-	A constrained device belongs to one of classes described in table \ref{tab:table1}.\newline
+	A constrained device belongs to one of the classes described in table \ref{tab:table1}.\newline
 	\input{table/002-constrained-energy.tex}
 	
-	A device can also be classified from the point of view of energy consumption as illustrated in table \ref{tab:table2}.
+	Also, a device is classified by its energy consumption as illustrated in table \ref{tab:table2}.
 	
-	The main sources of energy consumption are: wireless communication and long communication; in order to save as much energy as possible different strategies could be applied in different scenarios.\newline
-	If there is no need for extreme power saving a device could be always on, in this case it is necessary to use power friendly hardware in order to avoid wastes of energy and money.\newline
-	In other cases a device could be off most of time and it will wake up only when needed, in this case the wake up and the reconnection the network
-	could be costly from an energy point of view, but it is considered a good trade off.\newline
-	It is also possible that a device has low power consumption as it can operate with small amount of power; in this case it is a special case of an always on device.
+	A device is classified as E0 when the energy is consumed only when a certain event occurs, an E1 device has a battery 
+	that is periodically recharged or replaced.\newline
+	On the other hand an E2 device has a non-replaceable primary battery and when it exhausts, the device life cycle ends; lastly an E3 device has un unlimited source of energy so it is not constrained on this front.\newline 
+	
+	The main sources of energy consumption are: wireless and long communication; in order to save as much energy as possible different strategies can be applied in various scenarios.\newline
+	If there is no need for extreme power saving a device can be always on, in this case it is necessary to use power friendly hardware in order to avoid wastes of energy and money.\newline
+	In other cases a device could be off most of time and it will wake up only when needed, in this case the wake up and the reconnection to a network can be costly from an energy point of view, but it is considered a good trade off.\newline
+	A device may have low power consumption as it can operate with small amount of power; in this case it is a special case of an always on device.

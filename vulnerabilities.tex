@@ -1,10 +1,15 @@
 	\section{Vulnerabilities and possible attacks}
+	In this section we will analyze the vulnerabilities of both CoAP and WebSocket, we will also show some attacks,
+	where possible we will show you the code, but in order to make the document more comfortable to read we will not
+	show the entire code but only the necessary.\newline
+	In case you are interested in reproducing the examples the code is available on GitHub at this link: \url{https://github.com/TheRealLolloFake/tesi}, for each example we will describe how to configure the environment
+	and list down the required tools.\newline
 	
 	\subsection{CoAP vulnerabilities}
 	In an IoT environment, the data sent from a constrained device to a server are, most of the time, the measures taken by a sensor or an array of sensors; the server collects this data, which will be sooner or later processed in some way.\newline
 	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake message from the attacker.\newline
-	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameter in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
-	The two scenarios described can employee any protocol that suits well your business; if CoAP suits well in particular project, it is important to take into account its possible vulnerabilities and in this section we will analyze them.\newline
+	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameters in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
+	The two scenarios described can employee any protocol that suits well your business; if CoAP suits well in a project, it is important to take into account its vulnerabilities and in this section we will analyze them.\newline
 	
 	\subsubsection{Denial of Service}
 	//to do
@@ -21,7 +26,7 @@
 	\begin{itemize}
 		\item The attacker is capable of intercepting messages.
 		\item The attacker can respond faster than the server.
-		\item The client is programmed in bad way and will block if it cannot send the data successfully.
+		\item The client is programmed in a bad way and will block if it cannot send the data successfully.
 	\end{itemize}
 
 	For the client we assume the following behavior:
@@ -476,7 +481,8 @@
 	
 	\begin{lstlisting}[language=Java]
 	Java (Server side)
-	Requires this library: https://github.com/TooTallNate/Java-WebSocket
+	Requires this library: https://github.com/TooTallNate/Java-WebSocket
+
 	// ChatServer.java
 	package id.id2;
 	

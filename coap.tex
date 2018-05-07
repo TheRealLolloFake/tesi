@@ -1,24 +1,30 @@
 
 	\section{CoAP}
-	CoAP stands for Constrained Application Protocol, it is a protocol specialized for use with constrained nodes or network, where the computational power is low and the power consumption is not negligible.\newline
-	The nodes are characterized from the small amount of memory and by dated microcontroller.\newline
+	In this section we will analyze CoAP and its main features, in order to make the reading more comfortable,
+	we will skip some technical details that are not crucial to the understanding of basic concept of the protocol.\newline
+	In case you find yourself interested by CoAP and you want to examine all the details you can consult
+	the RFC 7252 defined by IETF. \newline
+	In this section when we refer to a constrained node/device we will also use the term: endpoint, host and node as synonym.\newline
+	We will analyze the structure of CoAP message, then we will its response/request model followed by its semantic, and other minor aspects, in the end there are two subsection about security\newline
 	
-	CoAP is defined by IETF in the RFC 7252.\newline
+	CoAP stands for Constrained Application Protocol, it is specialized to work with constrained nodes and networks where the computational power is low and the power consumption is not negligible.\newline
+	The nodes are characterized from small amount of memory and by dated micro-controller.\newline
 
-	CoAP belongs to the UDP based protocol family, UDP has been chosen for performance reason, because as said a little while ago, this protocol deals with constrained devices, which may not be powerful enough to handle a protocol like HTTP.\newline
+	CoAP belongs to the UDP based protocol family, UDP has been chosen for performance reason, due to the fact that a
+	constrained devices may not be powerful enough to handle a protocol like HTTP.\newline
 	
-	CoAP can be seen as a lightweight version of HTTP that meet with the technical specification of sensor and embedded machine; as we will see during this chapter, CoAP and HTTP share some technical details, that is not a case, in fact CoAP is designed to easily translate to HTTP in order to achieve a simplified integration with the web.\newline
-	\newline
-	In order to be a lightweight protocol, CoAP treats data in a very careful way in order to avoid massive in communication, that is why each message has a short fixed length binary header of only four byte; even if CoAP is designed to be as light as possible and it is based con UDP it has a reliability mechanism that allows the sender to know if the message sent has been received.\newline
-	\newline
-	There are two kinds of messages in CoAP:
+	CoAP can be seen as a lightweight version of HTTP that meet with the technical specification of sensor and embedded machine; as we will see during this chapter, CoAP and HTTP share some technical details, that is because CoAP is designed to easily translate to HTTP in order to achieve a simplified integration with the web.\newline
+
+	In order to be a lightweight protocol, CoAP treats data in a very careful way in order to avoid heavy communications, that is why each message has a short fixed length binary header of only four byte; even if CoAP is light, it has a reliability mechanism that allows the sender to know if the message sent has been received, of course it is not comparable to the one specified by TCP.\newline
+	
+	CoAP specifies two type of messages:
 	\begin{itemize}
 		\item Confirmable (CON)
-		\item Non-confirmable (NON)
+		\item Non-Confirmable (NON)
 	\end{itemize}
 	Only CON messages are considered reliable, in fact a Confirmable message is retransmitted using a default timeout plus an exponential back-off between retransmission, this occurs until the recipient does not send an ACK message back to the sender.\newline
-	As CoAP is built upon UDP, it is also possible to use multicast IP destination addresses, thus this protocol can handle multicast requests.\newline
-	This was a general picture of the Constrained Application Protocol, now we will analyze it in details.\newline
+	As CoAP is built upon UDP, it allows multicast IP destination addresses, thus this protocol can handle multicast requests.\newline
+	
 	\subsection{Message Structure}
 	A message, in CoAP, is encoded in a binary format and characterized by:\newline
 	\begin{itemize}
@@ -40,18 +46,18 @@
 		\end{enumerate}
 		\item \texttt{TKL}: specifies the token length with 4 bit, length from nine to fifteen are reserved and must not be used and must be treated like a message error format.
 		\item \texttt{Code}: this field is 8 bit length, the first 3 most significant bits specify the class, and the 5 least significant bit specify the details.
-		Basically we are specifying a message code in this way: “c.dd” where c is the class and dd the details, we will talk about the message code in details later.
-		\item \texttt{Message ID}: it is used to identify a message, it also used to detect duplicate message and to match ACK/RST message, and its dimension is 16 bit.
+		The message code is specified in this way: “c.dd” where c is the class and dd the details.
+		\item \texttt{Message ID}: it is used to identify a message, it also used to detect duplicates and to match ACK/RST, its dimension is 16 bit.
 	\end{enumerate}
 	
 	The token value is used to link requests and responses.\newline
 
 	Then there are zero or more options, an option can be followed by: the end of the message, another option or by the payload.\newline
-	Each option instance specifies the Option number of the defined CoAP option, the length of the Option value, and the Option value itself.\newline
-	The instance must appear in order of their option numbers and a delta encoding is used between them in order keep the options field as short as possible.\newline
-	The Option number for each instance is calculated as the sum of its delta and the Option Number of the preceding instance in the message.\newline
-	For the first instance, a preceding option with Option Number zero is assumed.\newline
-	It is possible to include multiple instance of the same Option by using a delta of zero.\newline
+	Each option instance specifies an Option number, its length and the value itself.\newline
+	Each instance must appear in order of their option numbers and a delta encoding is used between them in order keep the options field as short as possible.\newline
+	%The Option number for each instance is calculated as the sum of its delta and the Option Number of the preceding instance in the message.\newline
+	%For the first instance, a preceding option with Option Number zero is assumed.\newline
+%	It is possible to include multiple instance of the same Option by using a delta of zero.\newline
 	The structure is the following:\newline
 	\begin{itemize}
 		\item \texttt{Option delta}: specifies a value between 0 and 12 and is used as the difference between the Option Number of the current option instance and the previous one, its length is 4 bit.
@@ -99,15 +105,15 @@
 	\subsection{Request/Response model}
 	CoAP request and response semantics are carried in messages with the aid of method code and response code.\newline
 	Optional information, such as URI and payload are carried as options.\newline
-	Token and Message ID are separate concept but at a first look they seems the same, so be careful.\newline
-	\newline
-	A message regardless of being a CON or NON carries a request, when the server receive the request it sends back and ACK message that could have the response or not, in the latter case the server will
-	send a new message with the response, this is done in order to stop the retransmission of the request by the client.\newline
-	The first case is known as piggybacked response, the second one as separate response, if possible the server will return the response as a piggybacked response, of course if the request require some
-	times in order to be processed the protocol will rely on the separate response.\newline
-	If the request is sent as a NON message, then the response is a new NON message,  but the server may send a CON message.\newline
-	\newline
-	In order to be as fast as possible in fulfilling requests CoAP supports caching of requests, thus it is possible to provide piggybacked response.\newline
+	Token and Message ID are separate concept but at a first look they seems the same, the token matches a response
+	with a request while the Message ID is used to detect duplicates and for optional reliability.\newline
+	
+	A message regardless of being a CON or NON carries a request, when the server receives the request, it sends back and ACK message that could have the response or not, in the latter case the server will
+	send a new message with the response, this is done to stop the retransmission of a certain request by the client.\newline
+	The first case is known as piggybacked response, the second as separate response, if possible the server will prefer the piggybacked way, of course if the request require some times in order to be processed, the protocol will rely on the separate response.\newline
+	If the request is sent as a NON message, then the response is a new NON message, but the server may send a CON message.\newline
+	
+	In order to be as fast as possible in fulfilling requests CoAP supports caching to provide piggybacked response.\newline
 	
 	Figure \ref{fig:coap0} illustrates two simple client/server communications.
 	
@@ -117,7 +123,7 @@
 		\label{fig:coap0}
 	\end{figure}
 
-	CoAP uses method in a similar way to HTTP but not exactly the same, the supported methods are: \newline
+	CoAP uses method in a similar way to HTTP, the supported methods are: \newline
 	\begin{itemize}
 		\item GET
 		\item PUT
@@ -125,135 +131,79 @@
 		\item DELETE
 	\end{itemize}
 	But new methods could be added in future revision of the protocol.\newline
-	The most of URI handling is delegated to the client; in fact it parses the URI and splits it into:\newline
-	\begin{itemize}
-		\item Host
-		\item Port
-		\item Path
-		\item Query components
-	\end{itemize}
 
 	\subsection{Message transmission}
-	The communication between endpoints is asynchronous, also take in mind that messages may arrive out of order, appear duplicated or
-	go missing due to the unreliability of UDP.\newline
-	As said, CoAP define a reliability mechanism, but it is not mandatory to use CON message, also it is different from the TCP
-	reliability model, the features are the following:\newline
+	The communication between endpoints is asynchronous, so take in mind that messages may arrive out of order, appear duplicated or go missing due to the unreliability of UDP.\newline
+	As said, CoAP define a reliability mechanism, but the usage of CON message is not mandatory. It is different from the TCP reliability model and its features are the following:\newline
 	\begin{itemize}
 		\item Stop and wait retransmission reliability with exponential back-off, only for CON messages.
 		\item Duplicate detection for both CON and NON messages.
 	\end{itemize}
 
-	An endpoint is the source or destination of a message, it is identified by the security mode used, we will talk about it later, but
-	if no security mode is used, the endpoint is identified by an IP address and a UDP port number.\newline
-	When a message is transmitted reliably it means it is marked as CON in the header and it always carries either a request or
-	response, unless it is used only to elicit a RST message, in which case it is Empty.\newline
+	An endpoint is the source or the destination of a message, it is identified by the security mode choosed, we will talk about it later, but if there is no active security mode, the endpoint is identified by an IP address and a UDP port number.\newline
+	When a message is transmitted reliably it is marked as CON in the header and it always carries either a request or response, unless it is used only to elicit a RST message, in which case it is Empty.\newline
 	There are two possible scenarios when the recipient receives a message:\newline
 		\begin{itemize}
-		\item It can acknowledge it by sending an ACK with the same Message ID of the CON message; it also must carry a response or be empty
-		\item Otherwise if the recipient is not capable of handling the message, it must reject it by sending a RST that match the Message ID of the CON message and it must be empty.
+		\item It can acknowledge the message by sending an ACK with the same Message ID; the message must carry a response or be empty.
+		\item Otherwise if the recipient is not capable of handling the message, it must: reject the message by sending a RST that match the Message ID of the CON message and it must be empty, or ignore it.
 	\end{itemize}
 
-	Another way is to simply ignore the message.\newline
-	In order to reject an ACK or RST message the endpoint can simply ignore it.\newline
+	To reject an ACK or RST message, an endpoint can simply ignore the message.\newline
 	The recipient of an ACK or RST must not respond with an ACK or RST.\newline
+	
 	The sender retransmits the CON message at exponentially increasing intervals, 
 	until it receives an ACK or stop because it runs out of attempts.\newline
-	The retransmission is governed by a timeout and a retransmission counter.\newline
+	The retransmission is governed by a timeout and by a retransmission counter.\newline
 	When a new CON is transmitted the initial timeout is set to random duration between
 	\texttt{ACK\_TIMEOUT} 
 	and \texttt{ACK\_TIMEOUT$\cdot$ACK\_RANDOM\_FACTOR}, while the retransmission counter is set to 0.\newline
 	Where \texttt{ACK\_TIMEOUT} and \texttt{ACK\_RANDOM\_FACTOR} are constant defined by the final implementation of the protocol.\newline
 	Every time the timeout triggers and the counter is less than \texttt{MAX\_RETRANSMIT}, the message is retransmitted, the counter is incremented and the timeout is doubled.\newline
-	If the retransmission counter is greater than \texttt{MAX\_RETRANSMIT} or the sender receives a RST message the retransmission is aborted.
+	If the retransmission counter is greater than \texttt{MAX\_RETRANSMIT} or the sender receives a RST message the retransmission is aborted.\newline
 	Of course, if the sender receives an ACK the transmission is considered successful.\newline
-	An endpoint may also give up in attempting to obtain an ACK even before reaching the \texttt{MAX\_RETRANSMIT} counter, the application may
-	cancel the request for various reason.\newline
+	An endpoint may also give up in attempting to obtain an ACK even before reaching the \texttt{MAX\_RETRANSMIT} counter, for instance: the application may cancel the request for various reason.\newline
+	
 	When a message is transmitted without reliability the recipient must not send back an ACK message.\newline
-	If a recipient is not capable of handling a message because it lacks content to process or because it is malformed it must reject
-	the message.\newline
+	If the recipient is not capable of handling a message because it lacks content to process or because it is malformed, the message must be rejected.\newline
 	
 	A recipient might receive a NON message multiple times within \texttt{NON\_LIFETIME}.\newline
-	The recipient should process the request in the message only once; every duplicate message should be ignored.\newline
-	Talking about the message size, it is important to keep it small enough to into the link layer packet, this is, of course, not always possible.\newline
-	CoAP only define an upper bound to the message size, and in general messages larger than IP packet they end up bringing undesirable packet fragmentation.\newline
-	As a general rule a CoAP message should fit within a single IP packet, also take in mind that the maximum transmission unit (MTU) is 1280 byte if no other optimal values is known.\newline
-	As you may have noticed we have cited some variable without specifying their values, in the following table we have the default values 
-	for these variables.\newline
+	The recipient should process the request only once; every duplicate message should be ignored.\newline
+	The message size must be keep small enough to fit into the link layer packet; of course this is not always possible.\newline
+	CoAP defines an upper bound to the message size, as a general rule a CoAP message should fit within a single IP packet end up bringing undesirable packet fragmentation.\newline
+	The maximum transmission unit (MTU) is 1280 byte if no other optimal values is known.\newline
+	As you may have noticed we have cited some variables without specifying their values, in table \ref{tab:table3} we have listed the default values.\newline
 	
 	\input{table/003-constant}
 
-	The value listed in table \ref{tab:table3} are recommended in order to avoid congestion on the Internet, of course it is possible to 
-	customize the configuration as you like, in order to meet the environment requirement.\newline
-	Take in mind that \texttt{ACK\_TIMEOUT}, \texttt{ACK\_RANDOM\_FACTOR} and \texttt{MAX\_RETRANSMIT} influence the time of retransmission,
-	thus they also influence how long certain information need  to be  kept in memory by an implementation.\newline
-	In addition, the protocol also defines the variable listed in table \ref{tab:table4} derived from variables of table \ref{tab:table3}.\newline
-	
-	\input{table/004-derived-variable}
-	
-	Here the formulas for the variables listed in table \ref{tab:table4}.
-	
-	\begin{equation}
-		\texttt{MAX\_TRANSMIT\_SPAN}=\texttt{ACK\_TIMEOUT}\cdot(2^{\texttt{MAX\_RETRANSMIT}}-1)\cdot\texttt{ACK\_RANDOM\_FACTOR}
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{MAX\_TRANSMIT\_WAIT}=\texttt{ACK\_TIMEOUT}\cdot(2^{\texttt{MAX\_RETRANSMIT+1}}-1)\cdot\texttt{ACK\_RANDOM\_FACTOR}
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{MAX\_LATENCY}=100 seconds
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{PROCESSING\_DELAY}=\texttt{ACK\_TIMEOUT}
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{MAX\_RTT}=2\cdot\texttt{MAX\_LATENCY}+\texttt{PROCESSING\_DELAY}
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{EXCHANGE\_LIFETIME}=\texttt{MAX\_TRANSMIT\_SPAN}+2\cdot\texttt{MAX\_LATENCY}+\texttt{PROCESSING\_DELAY}
-	\end{equation}
-	
-	\begin{equation}
-	\texttt{NON\_LIFETIME}=\texttt{MAX\_TRANSMIT\_SPAN}+\texttt{MAX\_LATENCY}
-	\end{equation}
-	
-	In table \ref{tab:table5}, the default values are listed.
-	
-	\input{table/005-derived-variable}
+	The values listed in table \ref{tab:table3} are recommended in order to avoid congestion on the Internet, of course an implementation can customize these values in order to meet some special environment requirements.\newline
+	Take in mind that \texttt{ACK\_TIMEOUT}, \texttt{ACK\_RANDOM\_FACTOR} and \texttt{MAX\_RETRANSMIT} influence the time of retransmission, thus they also influence how long certain information need  to be kept in memory by an implementation.\newline
 	
 	\subsection{Semantic}
 	
-	CoAP works in a similar way to HTTP, even in CoAP the client sends one or more requests to a server, which sends back responses.\newline
+	CoAP works in a similar way to HTTP, the client sends one or more requests to a server, which sends back responses.\newline
 	The main difference between CoAP and HTTP is the lack of a previously established connection because CoAP messages are exchanged asynchronously.\newline
 	A CoAP request is made up by a method, the resource which the method will be applied, the identifier of the resource,
 	a payload and an Internet media type and optional metadata.\newline
 	As said before, the supported methods are:\newline
 	\begin{itemize}
-		\item GET A GET request retrieves a representation for the information that corresponds to the resource specified by the request URI.
-		It is considered safe because it must not take any other action on a resource, it only need to retrieve the resource.
-		It must be idempotent.
-		
-		\item POST When the server receives a POST request it process the representation enclosed in the request.
+		\item A GET request retrieves a resource specified by the request URI.
+		It is considered safe because it only need to retrieve the resource.
+	
+		\item When the server receives a POST request it process the resource enclosed in the request.
 		What is performed is determined by the origin server and not by the protocol.
 		If a resource has been created on the server, the response should be a 2.01 and should include the URI of the new resource.
 		If a new resource is not created by a POST request, the server should send back a 2.04 response.
-		It is not idempotent because its effect is determined by the server.
 		
-		\item PUT It creates or updates the resource specified by the request URI.
-		If a resource exists, the resource is updated and the server should send back a 2.04 response.
-		On the other hand if the resource did not exist, it will be created and the server should send back a 2.01 response.
-		It is not safe but it must be idempotent.
+		\item A PUT request creates or updates the resource specified by the request URI.
+		If the resource exists, then it is updated and the server should send back a 2.04 response.
+		On the other hand if the resource did not exist, the server creates it and send back a 2.01 response.
 		
-		\item DELETE When the server receives a DELETE request it should delete the specified resource.
-		It is not safe but it must be idempotent.
+		\item When the server receives a DELETE request it should delete the specified resource.
 		
 	\end{itemize}
+
 	A CON or NON message with the Code field set with all the information needed is a request.\newline
 	When a server receives a request, the request is interpreted and the server responds with a CoAP response that has the same token generated by the client.\newline
-	Take in mind that the token is different from the Message ID, the Message ID is used to match a CON to its ACK.\newline
 	A response is a CoAP message that has the Code field set to a Response Code.\newline
 	There are three classes of Response Codes:\newline
 	\begin{enumerate}
@@ -273,31 +223,25 @@
 	\end{enumerate}
 	
 	The Response Codes are designed to be extensible, if a Response Code is not recognized it must be treated as the generic Response Code of its class.\newline
-	In the following table are listed the available Response Codes.\newline
+	All the available response codes are listed in table \ref{tab:table6}.\newline
 	
 	\LTXtable{\textwidth}{table/006-responses}
-	
-	
 
-	When possible the response is carried directly in the ACK message that acknowledges the request, this is a piggybacked response.\newline
 	The response is returned in the ACK regardless it is a success or a failure; there is no need to send a separate message.\newline
-	The server is free to choose to send a piggybacked response or a separate response, but the client must be prepared to receive both.\newline
-	
-	If the server is not capable to provide a piggybacked response it will send a separate response.\newline
-	Usually, a separate response is used when the server might need some time to acquire a resource and perform the client’s request; for this reason one possible implementation is the following:
+	The server is free to send a piggybacked response or a separate response, but the client must be prepared to receive both.\newline
+	A separate response is used when the server might need some time to acquire a resource and perform the client’s request; for this reason one possible implementation is the following:
 	\begin{itemize}
 		\item When the server receives a request, it immediately sends back an Empty ACK.
 		\item Then the server will try to obtain the specified resource.
-		\item When the server obtains the resource, it sends back the response.
+		\item When the resource has been obtained and the request performed, the server sends back the response.
 		It sends the response as a CON message and waits the Empty ACK message from the client.
 	\end{itemize}
-	If the server receives the same message multiple times, and it has just sent an ACK message, it must not send back the response in another ACK.
+	If the server receives the same message multiple times, and it has just sent an ACK message, it must not send back the response in another ACK.\newline
 	
-	When the request is a NON message, the response should be returned in a NON message as well.
+	When the request is a NON message, the response should be returned in a NON message as well.\newline
+	An important thing to keep in mind is that a client must be prepared to receive a NON response even if the request was a CON message, or vice-versa a CON response in reply to a NON request.\newline
 	
-	An important thing to keep in mind is that a client must be prepared to receive a NON response even if the request was a CON message, or vice-versa a CON response in reply to a NON request.
-	
-	A response match a request if they have the same token and they match additional information like the address.\newline
+	A response matches a request if they have the same token and they match additional information like the address.\newline
 	The token is used to identify concurrent requests from the same client; the client should generate tokens that are unique for a given source/destination endpoint pair.\newline
 	Also note that a client should generate nontrivial, randomized token if TLS is not used, this is recommended in order to avoid trivial spoofing of responses.\newline
 	
@@ -306,33 +250,30 @@
 		\item The source of the response must match with the destination of the original request.
 		\item In a piggybacked response, the Message ID of the CON request and the ACK must match; even the token of the CON message must match with token of the ACK message.
 	\end{itemize}
-	A request may carry some options; CoAP defines a set of options that are used in requests and even in responses, table \ref{tab:table7} lists all the possible options.
+	A request may carry some options; CoAP defines a set of options that are used in requests and even in responses,
+	the list of options is available in the RFC.
+	% table \ref{tab:table7} lists all the possible options.
 	
-	\input{table/007-options}
+	%\input{table/007-options}
 	
-	A payload may be included in both requests and responses, but only if the method or the Response Code allows it, if a recipient receives a request and a payload is not expected, the recipient must ignore it.
+	A payload may be included in both requests and responses, but only if the method or the Response Code allows it, if a recipient receives a request and the payload is not expected, the recipient must ignore it.
 	
 	When a request is fulfilled the response include a payload which is a representation of a resource in a specific format, the format is specified by the Internet Media Type in the Content-Format Option.\newline
-	If the Content-Format Option is missing, it should be inferred; the inclusion of the Content-Format Option in a response is strongly recommended.
+	If the Content-Format Option is missing, it should be inferred; the inclusion of the Content-Format Option in a response is strongly recommended.\newline
 	
-	If a response that specify a certain client or server error is returned and the Content-Format is missing, then the payload is a diagnostic payload that contains a human-readable message encoded in UTF-8 in the Net-Unicode form.
+	If a response that specify a certain client or server error is returned and the Content-Format is missing, then the payload is a diagnostic payload that contains a human-readable message encoded in UTF-8 in the Net-Unicode form.\newline
 	
-	A server could provide a resource in multiple ways, in order to specify the preferred format the client must add it in the Accept Option, and if the server can satisfy the request it will return a response with the appropriate payload format.
+	A server could provide a resource in multiple ways, in order to specify the preferred format the client must add it in the Accept Option, and if the server can satisfy the request it will return a response with the appropriate payload format.\newline
 	
 	\subsection{Caching}
-	In order to speed up the response time and avoid useless network bandwidth consumption, a CoAP endpoint may cache responses.
+	In order to speed up the response time and avoid useless network bandwidth consumption, a CoAP endpoint may cache responses.\newline
+	Sometimes, a stored request can be reused without the need for a network request, but in order to provide a correct response this stored response has a short life and this introduce the \textbf{freshness} model of CoAP.\newline
+	If a response is tagged as \textbf{fresh} in the cache, it means it can be used to satisfy subsequent requests without contacting the server.\newline
+	A response cannot be cached every time; it depends by its Response Code.\newline
+	It is not always possible to use a cached response; it is possible to use a stored response when the request method matches the stored response match, all the options match between the request and the response and the stored response is fresh or validated.\newline
 	
-	Sometimes, a stored request can be reused without the need for a network request, but in order to provide a correct response this stored response has a short life and this introduce the \textbf{freshness} model of CoAP.
-	
-	If a response is tagged as \textbf{fresh} in the cache, it means it can be used to satisfy subsequent requests without contacting the server.
-	
-	A response is not always cacheable; it depends, as we have seen, on its Response Code.
-	
-	It is not always possible to use a cached response; it is possible to use a stored response when the request method matches the stored response match, all the options match between the request and the response and the stored response is fresh or validated.
-	
-	In order to determine if a response is fresh or not, CoAP uses an explicit expiration time specified in the Max-Age Option.
-	
-	A stored response is valid for a certain amount of time, after that it is no more valid and an endpoint can use the ETag Option in the GET request to allow the server to select a stored response to be used, and to update its freshness.
+	In order to determine if a response is fresh or not, CoAP uses an explicit expiration time specified in the Max-Age Option.\newline
+	A stored response is valid for a certain amount of time, after that it is no more valid and an endpoint can use the ETag Option in the GET request to allow the server to select a stored response to be used, and to update its freshness.\newline
 	
 	\subsection{Proxy}
 	
@@ -350,7 +291,7 @@
 		\item Cross Protocol Proxies
 	\end{itemize}
 	
-	We will talk about cross protocol proxies in another chapter, now we will focus on the first class.
+	We will talk about cross protocol proxies in another section, now we will focus on the first class.
 	
 	A proxy can have a cache or not, in the first case if the server does not have a fresh response for the request it will need to refresh its cache, then it will translate the request and forward a new crafted request to origin server; in the second case the proxy receives the request, translate it and it forwards the new crafted request to the origin server.
 	
@@ -360,10 +301,10 @@
 	\end{equation}
 	When a proxy does not recognize a certain Option, it must send back a 4.02 response.\newline
 	A proxy must forward all Safe-To-Forward option, but it must send back a 5.02 response if an unsafe option is not recognized.\newline
-	In case of timeout the proxy must return a 5.04 response, if a response cannot be processed by the proxy a 5.02 must be returned.
+	In case of timeout the proxy must return a 5.04 response, if a response cannot be processed by the proxy a 5.02 must be returned.\newline
 	
-	A proxy need a way to determine the parameter of the request that it must forward to the server, basically the server receives a request and it need to know which parameters it must use in order to create the new request if will forward to the server.
-	This procedure is fully defined to a forward proxy, but there is no specification of a reverse proxy.
+	A proxy need a way to determine the parameter of the request that it must forward to the server, basically the server receives a request and it need to know which parameters it must use in order to create the new request if will forward to the server.\newline
+	This procedure is fully defined to a forward proxy, but there is no specification of a reverse proxy.\newline
 	
 	A forward proxy receives a request with the Proxy-Uri or the Proxy-Scheme Option, from one of these options; it will determine the component of the request URI and will split them in:
 	\begin{itemize}
@@ -374,10 +315,10 @@
 	\end{itemize}
 
 	Proxy-Uri and Proxy-Scheme are not forwarded in the new request.\newline
-	A reverse proxy receives requests without the Proxy-Uri or Proxy-Scheme; it needs to determine the destination of a request from the request itself and from its configuration.
-	It could discover new resources via Resource Discovery and it can offer them as it they were its own.
+	A reverse proxy receives requests without the Proxy-Uri or Proxy-Scheme; it needs to determine the destination of a request from the request itself and from its configuration.\newline
+	It could discover new resources via Resource Discovery and it can offer them as it they were its own.\newline
 	
-	When a client uses a proxy to make a request with TLS, the request towards the proxy should be done with TLS; there is no guarantee that the proxy will use TLS, so be careful.
+	When a client uses a proxy to make a request with TLS, the request towards the proxy should be done with TLS; there is no guarantee that the proxy will use TLS, so be careful.\newline
 	
 	\subsection{CoAP URI}
 	CoAP uses coap and coaps URI schemes for resources and providing a means of locating the resource.
@@ -398,30 +339,38 @@
 	The differences are: the s after \texttt{coap}, the default port which is 5684 and the UDP datagrams must be secured with DTLS.
 	It is important to highlight that two resources with the same name, but made available, one via \texttt{coap}, and the other via \texttt{coaps}, are unrelated.
 	
+	The most of URI handling is delegated to the client; in fact it parses the URI and splits it into:\newline
+	\begin{itemize}
+		\item Host
+		\item Port
+		\item Path
+		\item Query components
+	\end{itemize}
+	
 	\subsection{Multicast CoAP}
 	CoAP supports requests to a multicast group IP, if a server wants to make its resources discoverable, it need to join one of the following multicast address:
 	\begin{itemize}
-		\item 	IPv4: 224.0.1.187
+		\item IPv4: 224.0.1.187
 		\item IPv6 ff0x:fd
 		\item Other multicast address
 	\end{itemize}
 
-	An endpoint must be prepared to receive multicast request even from different address from the first two, if an endpoint is not interested in sharing its resources it can simply ignore the requests.
+	An endpoint must be prepared to receive multicast request even from different address from the first two, if an endpoint is not interested in sharing its resources it can simply ignore the requests.\newline
 	
 	At a messaging layer point of view a multicast request is transported in a CoAP NON message with a multicast IP address.\newline
 	In order to avoid implosion of error responses, an endpoint must not return a RST message to a NON message.\newline
-	Take in mind that multicast request are not supported by DTLS but only by UDP.
+	Take in mind that multicast request are not supported by DTLS but only by UDP.\newline
 	
-	When an endpoint receives a multicast request it could ignore it if it does not have anything useful to send back; on the other hand if it choose to respond, it will respond but not immediately but after a certain amount of time, the length of the period is called \textbf{leisure}.
+	When an endpoint receives a multicast request it could ignore it if it does not have anything useful to send back; on the other hand if it choose to respond, it will respond but not immediately but after a certain amount of time, the length of the period is called \textbf{leisure}.\newline
 	The leisure could be defined by the application or defined in this way:
 	\begin{equation}Leisure=S\cdot\frac{G}{R}\end{equation}
-	Where $G$ is the esteemed group size, $R$ is the transfer rate and $S$ the response size.
-	In this case it is a lower bound.
+	Where $G$ is the esteemed group size, $R$ is the transfer rate and $S$ the response size.\newline
+	In this case it is a lower bound.\newline
 	
-	The server chooses a random point of time within the leisure to send a unicast response.
-	Each time a further response need to be send a new leisure period must be defined.
+	The server chooses a random point of time within the leisure to send a unicast response.\newline
+	Each time a further response need to be send a new leisure period must be defined.\newline
 	
-	In order to match a response to a multicast request only the token must match.
+	In order to match a response to a multicast request only the token must match.\newline
 	
 	\subsection{Discovery}
 	A client can find a server in 3 different ways:
@@ -431,10 +380,10 @@
 		\item Or it finds out via multicast request
 	\end{itemize}
 
-	A server that support resource discovery must use the default port 5683.
+	A server that support resource discovery must use the default port 5683.\newline
 	
 	In a M2M environment where there is no human intervention it is very important to have a way to discover resources.\newline
-	A server that support resource discovery should support the CoRE (Constrained Restful Environment) link format of discoverable-resource (RFC 6690) when manual configuration is missing.
+	A server that support resource discovery should support the CoRE (Constrained Restful Environment) link format of discoverable-resource (RFC 6690) when manual configuration is missing.\newline
 	
 	\subsection{CoAP-HTTP Proxying}
 	As mentioned before, it is possible to implement a proxy between CoAP and HTTP.\newline
@@ -447,85 +396,88 @@
 	\end{figure}
 	
 	When a CoAP endpoint sends a request including a Proxy-Uri or Proxy-Scheme option with a HTTP or HTTPS URI, the receiving CoAP endpoint known as proxy, will translate the CoAP message into an HTTP or HTTPS and perform the operation specified in the original request.\newline
-	If the proxy is not capable of handling the submitted request, a 5.05 response is returned to the client.
+	If the proxy is not capable of handling the submitted request, a 5.05 response is returned to the client.\newline
 	
 	\input{table/008-coap-to-http}
 	
-	Thanks to the fact that these four methods are quite similar to the corresponding in HTTP, the proxying operation is facilitated.
+	The possible mappings of CoAP methods to HTTP methods are listed in table \ref{tab:table8}.
+	
+	Thanks to the fact that these four methods are quite similar to the corresponding in HTTP, the proxying operation is facilitated.\newline
 	
 	\subsection{HTTP-CoAP Proxying}
 	It is also possible to perform the inverse proxying operation from HTTP to CoAP.\newline
 	There are some restrictions, because some methods of HTTP are not supported by CoAP.
 	
+	The possible mappings of HTTP methods to CoAP methods are listed in table \ref{tab:table9}.
+	
 	\input{table/009-http-to-coap}
 	
 	\subsection{Securing CoAP}
-	CoAP can operate in one of the following security modes.
+	CoAP can operate in one of the security modes listed in table \ref{tab:table10}.
 	
 	\input{table/010-security}
 	
-	It is important to highlight that we are dealing with constrained devices; in some cases, it could be possible that the available resources are not able to support a secure communication, or the support of the cyber suite is only partial.\newline
-	Also, take in mind that DTLS adds a little overhead and it could slow down the communication or create congestion in the network.
+	It is important to highlight that we are dealing with constrained devices; in some cases, it could be possible that the available resources are not able to support a secure communication, or the support of a certain cipher suite is only partial.\newline
+	Also, take in mind that DTLS adds a little overhead and it could slow down the communication or create congestion in the network.\newline
 	
-	Of course, the use of DTLS is strongly recommended but in some case it could be simply impossible to use, in this case the network is secure only if an attacker is not capable of sending and receiving messages.
+	Of course, the use of DTLS is strongly recommended, but in some case it could be simply impossible to use, thus the network is secure, only if an attacker is not capable of sending and receiving messages.\newline
+	Also, take in mind that DTLS is not supported for multicast CoAP messages.\newline
 	
-	As just said, DTLS is not supported for multicast CoAP messages.
-	
-	While using DTLS all CoAP messages must be sent as DTLS “application data” and in order to match an ACK or RST message to a CON the DTLS session must be the same, and the epoch must be the same.\newline
-	The rules for matching a RST message to a NON message are the same.
+	While using DTLS, all CoAP messages must be sent as DTLS “application data”, in order to match an ACK or RST message to a CON the DTLS session must be the same, same for the epoch.\newline
+	The same for matching a RST message to a NON messages.\newline
 	
 	During the retransmission of a CON message, a new DTLS sequence number is used at each attempt, but the Message ID does not change.\newline
-	Retransmission must not be performed across epochs.
+	Retransmission must not be performed across epochs.\newline
 	
 	In order to match a request to a response there is a new rule: the DTLS session must match and even the epoch must match, thus a DTLS request must always associated to a DTLS response, if the response is not secured it must be rejected.
 	
 	\subsection{Security perspective}
 	Every protocol has some flaws in its design and in its implementations; by exploiting these flaws is it possible to perform attack, from a simple denial of service to a remote code execution.\newline
-	A DoS may be possible simply by exploiting a flaws in the protocol, for a remote code execution a big flaw in the implementation must be present, of course an error in the design could accentuate an implementation flaw.
+	A DoS may be possible simply by exploiting a flaws in the protocol, for a remote code execution a big flaw in the implementation must be present, of course an error in the design could accentuate an implementation flaw.\newline
 	
-	In this section we will not talk about specific attack but only list down some hypothesis, we will talk about real attack in another chapter.
+	In this section we will not talk about specific attack but only list down some hypothesis, we will talk about real attack in another chapter.\newline
 	
-	One source of flaws for CoAP could be the parser that analyze the messages; a parser is a program that recognize a grammar, if the grammar is complex then its parser will not be less complex if not even complex, it is trivial to understand that it is likely that a flaw may hide inside the parser, this could lead to DoS or remote code execution if a buffer overflow happens.
+	One source of flaws for CoAP could be the parser that analyze the messages; a parser is a program that recognize a grammar, if the grammar is complex then its parser will not be less complex if not even complex, it is trivial to understand that it is likely that a flaw may hide inside the parser, this could lead to DoS or remote code execution if a buffer overflow happens.\newline
 	
-	Talking about URI processing, CoAP moved the most of it on the client side to avoid vulnerabilities server side, in this case, the vulnerabilities could be in the client side, the IETF suggest to take special care while implementing the URI processing code.
+	Talking about URI processing, CoAP moved the most of it on the client side to avoid vulnerabilities server side, in this case, the vulnerabilities could be in the client side, the IETF suggest to take special care while implementing the URI processing code.\newline
 	
-	The fact that most constrained device will execute, for performance reasons, the protocol implemented in C it is likely that a buffer overflown could happens if the memory is not handled properly. 
+	The fact that most constrained device will execute, for performance reasons, the protocol implemented in C it is likely that a buffer overflown could happens if the memory is not handled properly. \newline
 	
 	A proxy is, from the security point of view, a man in the middle; if a proxy endpoint is compromised then even using DTLS is useless.\newline
-	If a proxy also performs caching tasks, an attacker could carry out a DoS by caching forever useless message or old real message.
+	If a proxy also performs caching tasks, an attacker could carry out a DoS by caching forever useless message or old real message.\newline
 	
-	When a server replies to a request with a response, the response may be larger than the request packet.
+	When a server replies to a request with a response, the response may be larger than the request packet.\newline
 	We could exploit a CoAP server in order to generate a huge amount of network traffic with the aid of IP spoofing; this is a particular case of DoS known as amplification attack.\newline
 	This could be particularly interesting because we are dealing with constrained devices, so suppose that somehow, we have taken control of a node, but that it is not powerful enough to perform a DoS alone, we could exploit a CoAP server, which we assume is quite more powerful of a single node, to generate a huge network traffic.\newline
 	On the other hand, a constrained network could only be able to generate a small amount of traffic due to the fact that is constrained by design.\newline
-	It is possible to avoid this particular attack if the nodes are authenticated.\newlineù
+	It is possible to avoid this particular attack if the nodes are authenticated.\newline
 	
 	Another source of attack could be the use of multicast IP, but as we have seen the protocol specify a particular procedure in order to avoid DoS attack on this front.\newline
-	In order to avoid attack via multicast IP a server should not accept a request that could not be authenticated.
+	In order to avoid attacks via multicast IP a server should not accept a request that could not be authenticated.
 	
 	Due to the nature of UDP an endpoint can read messages carried by the network if the configuration is NoSec or PreSharedKey.\newline
 	It is possible to spoof a RST message in response to a CON or NON message.
 	An attacker could send an ACK in response to a CON in order to prevent the retransmission of a message and thus blocking the endpoint.\newline
 	
-	Also take in mind that the fact we are dealing with constrained device is quite important, another possible attack could be a DoS that tries to exhaust the energy of a constrained device in order to shut it down completely, this is possible by forcing an endpoint to retransmit a message or by sending multicast messages.
+	Also take in mind that the fact we are dealing with constrained device is quite important, another possible attack could be a DoS that tries to exhaust the energy of a constrained device in order to shut it down, this is possible by forcing an endpoint to retransmit a message or by sending multicast messages.\newline
 	
-	A constrained device may not have enough entropy in order to provide secure pseudo-random number generator, this could lead to trivial and predictable token.
+	A constrained device may not have enough entropy in order to provide secure pseudo-random number generator, this could lead to trivial and predictable token.\newline
 	
-	Due to the limited resources, a constrained device may be susceptible to timing attack, in particular while dealing with cryptographic primitive.
+	Due to the limited resources, a constrained device may be susceptible to timing attack, in particular while dealing with cryptographic primitive.\newline
 	
 	Another possible threat is given by the environment where the constrained device is deployed, if the environment is not properly secured an attacker could simply tamper the device or, if his target is creating a DoS, simply smashing the device with a hammer.\newline
-	So it is important to place constrained devices in a controlled environment in order to avoid attacks that are not completely related with the digital world.
+	So it is important to place constrained devices in a controlled environment in order to avoid attacks that are not completely related with the digital world.\newline
 	
 	\subsection{Differences and short comparison with MQTT}
-	Both CoAP and MQTT are good for constrained environment, but they have different targets and features, CoAP uses UDP as underlying transport layer, while MQTT uses TCP that supports an advanced reliability model compared to CoAP.
+	Both CoAP and MQTT are good for constrained environment, but they have different targets and features, CoAP uses UDP as underlying transport layer, while MQTT uses TCP that supports an advanced reliability model compared to CoAP.\newline
 	
-	CoAP is easily mapped to HTTP because it was designed with this feature in mind.
+	CoAP is easily mapped to HTTP because it was designed with this feature in mind.\newline
 	
 	MQTT is most suitable for event-based communication while CoAP is a better choice for continuous monitoring scenario.\newline
-	CoAP also offers faster communication compared to MQTT and it is more indicated for M2M communication, on the other hand, CoAP is UDP based and unreliable by design while MQTT thanks to TCP is reliable but slower.
+	CoAP also offers faster communication compared to MQTT and it is more indicated for M2M communication, on the other hand, CoAP is UDP based and unreliable by design while MQTT thanks to TCP is reliable but slower.\newline
 	
 	MQTT is more common compared to CoAP; that is because MQTT was adopted, at least initially, by the big cloud player.\newline
-	Another factor to take in mind is date of release of the specification: MQTT was released in 1999 while CoAP in 2014; that is why CoAP is, at the moment, less widespread.
+	Another factor to take in mind is date of release of the specification: MQTT was released in 1999 while CoAP in 2014; that is why CoAP is, at the moment, less widespread.\newline
 	
 	\subsection{CoAP implementation}
 	At this link: \url{http://coap.technology/impls.html} are listed some CoAP implementation.\newline
