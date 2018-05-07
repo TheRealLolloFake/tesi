@@ -26,7 +26,7 @@ This response is not cacheable, and a cache must mark any stored response for th
 
 2.03 Valid & It is like HTTP 304 Not Modified, but only used to specify that the response identified by the entity-tag in the ETag option is valid.
 The response must include an ETAG and must not have a payload.
-If a cache recognizes and processes the ETag option, it must update the stored response with the value of Max-Age option include in the response.\\hline
+If a cache recognizes and processes the ETag option, it must update the stored response with the value of Max-Age option include in the response.\\\hline
 
 2.04 Changed & It is like HTTP 204 No Content, but only used in response to POST and PUT.
 If the response has a payload, it is a representation of the action result.
