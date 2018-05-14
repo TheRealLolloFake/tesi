@@ -1,10 +1,24 @@
+
+
 \section{Personal experience in the company}
 
 During my internship at Abo Data I had the opportunity to work on different real world application and I was able to notice some security problem that I fixed.\newline
 In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage for Abo Data.
 
+Application 1 is an IoT application which manages train networks, the dashboard that allows the user to control the network
+is a web application.\newline
+
+Application 2 is an IoT application which deals with tyres, it is a large system developed by Abo Data and another important company, 
+this system allows to track vehicles and monitor the tyres status in order to provide data to the end user.\newline
+These data can be used for lots of different tasks: the end user can track his fleet of vehicles and monitor if everything is right, while
+the tyres company can verify that the tyres produced comply with the standard.\newline
+I worked on a sub-system known as Single Sign On (SSO), this sub-system allows users to log into more than one system
+with only one credendentials with the help of a token.\newline
+When I started my internship this sub-system of the system was not ready, for this reason we focused on making it secure by design, this lead us on working a bit more on the analysis of the sub-system before starting with the real implementation in order to avoid secuirty flaws that could be difficult to fix in future.\newline
+
+
 \subsection{Problems detected}
-Application 1 is a web application that suffered four important flaws:
+Application 1 has four important flaws:
 \begin{enumerate}
 	\item It trusted user’s input
 	\item It did not check user’s privilege
@@ -28,7 +42,7 @@ In order to make it work properly it was necessary to associate the privilege le
 
 The third flaw was the easiest to fix because it required changing only one part of the code.\newline
 The passwords were saved on the DB with the aid of symmetric cryptography; the encryption key was stored in a configuration file.\newline
-Saving passwords in this way is not secure because symmetric cryptography is, by design, reversible; a password must be stored on a DB with the aid of one way function, like a hash function or a key derivation function.\newline
+Saving passwords in this way is not secure because symmetric cryptography is, by design, reversible; a password must be stored on a DB with the aid of a one way function, like a hash function or a key derivation function.\newline
 To fix this flaw we replaced the symmetric cryptography algorithm with a key derivation function, the DB required some change in order to store the number of iteration and the salt.\newline
 The fourth flaw was another easy one because it required replacing String with array of char, this change was needed in order to minimize the exposure of sensible data and to reduce the success of cold boot attack.\newline
 
@@ -40,9 +54,9 @@ From an academic point of view, making a secure application is the main goal, bu
 If you are developing an application by yourself and for yourself, you have no deadline, no customers to meet and no budget limitations.\newline
 On the other hand, if you are in a company, you are developing an application for a customer you must take care of:
 \begin{itemize}
-	\item Relationship with the him
+	\item Relationship with him
 	\item Deadlines
-	\item Support for the application for a certain period of time
+	\item Support the application for a certain period of time
 \end{itemize}
 
 In order to maintain a solid relationship with your costumer, deadlines must be respected, and here the development of the application comes to play; including security in the development of an application may seems easy at the beginning, but it is not so simple as it may seems and it may cost lots of time, and when there is a deadline the goal is to finish the job, no matter if the application is secure or not.\newline
@@ -61,5 +75,5 @@ The security part on an application should be defined in way that allows the dev
 The security part should also be developed with particular care in order to be updated easily in the future, suppose that the hashing algorithm you are using in your application is marked as unsecure for some reasons, then you should update your application, but of course an update has a cost and requires a certain amount of time in order to be completed, if the code is monolithic it will be difficult and expensive to update, on the other hand if the code is modular it will be easy.\newline
 Another thing to take in mind is that in the IoT world we also deal with constrained devices, if for some reason you need to change the algorithm for a new one you should check if your constrained devices are capable of handling the new algorithm, otherwise you should stick with the old algorithm or use powerful devices. Of course here you have to find a trade-off.\newline
 From my experience I noticed that implementing a security feature or fixing a security flaws is difficult in software that is in an advanced stage of development, it may require substantial changes to the whole project, this could slow down the development and it could be difficult to respect the deadline.\newline
-Basically, security should be part of the application since the requirements phase, or big problem will emerge later on.\newline
+Basically, security should be part of the application since the requirements phase, or big problems will emerge later on.\newline
 

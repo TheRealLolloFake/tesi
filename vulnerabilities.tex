@@ -5,14 +5,32 @@
 	In case you are interested in reproducing the examples the code is available on GitHub at this link: \url{https://github.com/TheRealLolloFake/tesi}, for each example we will describe how to configure the environment
 	and list down the required tools.\newline
 	
+	\subsection{Possible attacks and terminology}
+	In this short section I will list the name of the most common attacks in order to make the reading more due to the fact these terms will be recurrent from now on.\newline
+	
+	A \emph{Denial of Service} (DoS) is a particular attack that tries to make a machine or a resource unavailable, this
+	attack is carried out by sending a huge amount of requests to an endpoint.\newline
+	A more efficient variant of a DoS is the \emph{Distributed Denial of Service} (DDoS), the main goal is the same but it is achieved
+	with the collaboration of two or more clients that perform a huge amount of requests to an endpoint.\newline
+	A \emph{Man in the middle} (MitM) is an attack where the attacker intrudes in a communication between two endpoint
+	and act as third party capable of receiving and forwarding messages.\newline
+	A \emph{buffer overflow} is an attack that exploit the wrong handling of the memory by a program, usually when a buffer
+	overflow happens the program crashes, that is because some content has overwrite important data in the memory,
+	but if the content provided by an attacker is specifically crafted it could lead to the execution of arbitrary code
+	and the corruption of the system; this particular attack is quite common on low level program written in assembly, C or C++.\newline
+	With the term \emph{injection} we mean the introduction of code inside an application by an attacker.\newline
+	A \emph{Cold boot attack} is a particular attack that relies on the data remanence property of the RAM, basically when
+	a system is shutdown some data remains in memory for a little amount of time; if the attack, with the aid of liquid nitrogen or similar tools, is capable of reducing the temperature, he can extend the time window in which data remains in memory, then with the aid of special tools it will dump the content of the memory.\newline
+	
+	
 	\subsection{CoAP vulnerabilities}
 	In an IoT environment, the data sent from a constrained device to a server are, most of the time, the measures taken by a sensor or an array of sensors; the server collects this data, which will be sooner or later processed in some way.\newline
-	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake message from the attacker.\newline
+	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake messages from the attacker.\newline
 	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameters in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
 	The two scenarios described can employee any protocol that suits well your business; if CoAP suits well in a project, it is important to take into account its vulnerabilities and in this section we will analyze them.\newline
 	
 	\subsubsection{Denial of Service}
-	//to do
+	In this section we will analyze possible denial of service attack on both client and server side.
 	
 	\paragraph{DoS on the client}
 	\begin{figure}
@@ -55,13 +73,12 @@
 	
 	In the second case, if the constrained device exhausts its energy then the server may not proceed with its task due to the lack of data.\newline
 	
-	In a constrained device, a low level language is likely to be used, this means that lots of convenient features likes asynchronous method or callback are not implemented and if you want to use them, you must take care of implementing them by yourself, it must also be taken into account that the resources are limited so a simpler approach on the code may be mandatory, making the infinity while loop, which tries to send the data, the only possible viable way.\newline
+	In a constrained device, a low level language is likely to be used, this means that lots of convenient features likes asynchronous method or callback are not implemented and if you want to use them, you must take care of implementing them by yourself, it must also be taken into account that the resources are limited so a simpler approach on the code may be mandatory, making the infinite while loop, which tries to send the data, the only possible viable way.\newline
 	
 	\paragraph{DoS on the server}
-	Performing a DoS on the server is a bit more easy because the attacker does not need to intercept messages but simply sends lots of messages to the server.\newline
+	Performing a DoS on the server is a bit more easy because the attacker does not need to intercept messages but simply sends lots of messages to the server, but it could be difficult to turn it down because its computational power is higher.\newline
 	
 	We assume that a server has a computational power that is higher than a common desktop computer, so an attacker may not be capable of carrying out a successful DoS alone, it may need one or more machines and perform a distributed denial of server in order to overwhelm the server.\newline
-	Basically, a DDoS is a DoS performed by more than one machine at the same time, usually these machines are infected by the attacker long before the attack.\newline
 	
 	Figure \ref{fig:coap-vuln1} illustrates the difference between a DoS and DDoS.
 	
@@ -86,7 +103,7 @@
 	
 	IoT systems that deal with serious tasks like health monitoring or the previous example of the nuclear reactor must have DoS prevention system in order to continue the execution of the main task.\newline
 	It could be a good idea to isolate the IoT system from the Internet in order to avoid incoming unwanted request, the HTTP server will always be reachable, but if it sends too much requests to the CoAP server, then it should be blocked for a certain amount of time, of course this will make the system unavailable, but at least the main task is preserved.\newline
-	//sto pezzo è da rivedere
+	//il pezzo qua sopra non mi convince moltissimo
 	Mixing this idea with the well-known technique used to reduce the effects of DoS on an HTTP server could lead to a system that is resistant to DoS.\newline
 	Of course, if the IoT system is not reachable via Internet, and the HTTP server is resistant to DoS attack, there is no need to add the idea proposed here.\newline
 	
@@ -114,12 +131,12 @@
 	
 	Figure \ref{fig:coap-vuln3} illustrate where a corrupted proxy is placed in order carry out a man in the middle attack.\newline
 	
-	In order to place act as man in the middle an attack should be capable of intercepting messages and avoid the forwarding of real messages to the server.\newline
+	In order to act as man in the middle an attack should be capable of intercepting messages and avoid the forwarding of real messages to the server.\newline
 	If the constrained network has a legitimate proxy, the easiest way is to take control of it in some way, installing a physical proxy could not be feasible or may be easy to detect.\newline
 	If an attacker can act as a man in the middle by corrupting a proxy, then even using TLS is useless, that is because the attacker establishes two secure communications, one with the client and one with the server.\newline
 	In this way a man in the middle can simply read the communication or edit the content of a message at will.\newline
 	
-	Another important thing to highlight that the protocol does not enforce that a proxy, that receives an encrypted message from a client, must forward the message to the server in an encrypted way.
+	Another important thing to highlight is that the protocol does not enforce that a proxy, that receives an encrypted message from a client, must forward the message to the server in an encrypted way.
 	Figure \ref{fig:coap-vuln4} illustrates the situation.\newline
 	
 	\begin{figure}
@@ -163,7 +180,7 @@
 		\label{fig:coap-vuln5}
 	\end{figure}
 	
-	The attacker acts as a legitimate server and performs a DoS on the legitimate CoAP server in order to make it unreachable to the CoAP client that tries to discover new devices.\newline
+	The attacker acts as a legitimate server and performs a DoS on the legal CoAP server in order to make it unreachable to the CoAP client that tries to discover new devices.\newline
 	In this way the attacker is the only device that can be discovered by the client, if the attacker makes available a resource recognized as legitimate by the client, the attack can trick the client and act as the legal server.\newline
 	If we are in a scenario where the server sends parameter to a product line, if an attacker manages to replace the legal server with its malevolent version, then he can control the product line at will.\newline
 	
@@ -185,8 +202,8 @@
 	\end{itemize}
 	
 	\paragraph{Denial of Service}
-	
 	If an attacker has physical access to constrained devices or a main CoAP server it can carry out a denial of service in a variety of way.\newline
+	
 	\subparagraph{Jamming}
 	This DoS can be carried out on wired and wireless network and it requires a jammer.\newline
 	A jammer is a device which transmits signals on the same radio frequencies of the target, making the communication impossible by preventing them from receiving and transmitting in the jammer’s operative range.\newline
@@ -197,13 +214,13 @@
 	
 	A jammer could have different dimension based on how wide is its operative range, if the constrained network you want to take down is small you can use a small jammer that may be hidden in the environment, but remember that sooner or later the battery will exhaust and the DoS will cease; you can also use a big jammer with a very wide operative range, you may even place it in a different building and carry out the DoS without caring about battery life, but in this case you could take down other network and making your attack more noticeable.\newline
 	
-	\textbf{Note:} in most of countries jammer are illegal and can be used legally only by the army or the police, but if you want you can find jammers on sale on the Internet easily, even on Amazon, but for professional tools it is better you call on to specialized retailers.\newline
+	\textbf{Note:} in most of the countries, jammer are illegal and can be used legally only by the army or the police, but if you want you can find jammers on sale on the Internet easily, even on Amazon, but for professional tools it is better you call on to specialized retailers.\newline
 	
 	There is no general countermeasure against jammer, in the case of wired network, shielded cables can be used but for a wireless network there is no way to avoid a jamming DoS, the only way is to find out the source and shut it down.\newline
 	
 	\subparagraph{Destroying the device}
 	Another simple DoS could be carried out simply by destroying the devices in the way you prefer.\newline
-	Of course this approach is not stealth at all because when someone will notice the malfunctioning and after investigating on the environment it will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
+	Of course this approach is not stealth at all because when someone notice the malfunctioning and after investigating on the environment it will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
 	Of course this technique could be applied even on the CoAP server or other machines, but as assumed a server could be in an environment where it is more likely to be spotted, so it could be risky.\newline
 	
 	If the constrained network is wired then an attacker could simply cut the cables and carry out the DoS.\newline
@@ -221,7 +238,7 @@
 		\item A desktop application communicate with the CoAP server in order to retrieve data.
 	\end{itemize}
 
-	Usually a constrained device is interested in sending data to the server and it may be not capable of receiving huge amount of data as response, so the response to a GET request could be difficult or impossible to handle.\newline
+	Usually a constrained device's purpose is sending data to the server and it may not be capable of receiving huge amount of data as response, so the response to a GET request could be difficult or impossible to handle.\newline
 	
 	If a corrupted device starts sending spoofed request to a CoAP server it could exploit amplification attack and redirect huge amount of data to the constrained devices in the network.\newline
 	
@@ -248,7 +265,7 @@
 	
 	Compared to the cloning attack, the firmware replacement attack could be easy to carry out and it only requires writing a firmware and uploads it on devices.\newline
 	
-	In order to update a device in a secure way, it must be capable to verify a certificate in order to verify that the update is legitimate, if the device is not powerful enough an alternative way could be to update it manually by flashing the memory, but it may require some time and could be costly.\newline
+	In order to update a device in a secure way, it must be capable to verify a certificate in order to check that the update is legitimate, if the device is not powerful enough an alternative way could be to update it manually by flashing the memory, but it may require some time and could be costly.\newline
 	
 	\paragraph{Extraction of security parameters}
 	As we know a constrained device may have keys and other security parameters embedded on it, if an attacker has physical access to the device and is capable of reading its memory it can steal keys or other security parameters.\newline

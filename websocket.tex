@@ -1,21 +1,21 @@
 \section{WebSocket}
 In this section we will analyze WebSocket and its main features, in order to make the reading more comfortable,
 we will skip some technical details that are not crucial to the understanding of basic concept of the protocol as for CoAP.\newline
-In case you find yourself interested by WebSocket and you want to examine all the details you can consult
-the RFC 6455 defined by IETF. \newline
+In case you find yourself interested by WebSocket and you want to examine all the details you can consult the RFC 6455 defined by IETF. \newline
 
-WebSocket is a communication protocol which provides full-duplex communication channel over a single TCP connection between two hosts.\newline
-When there was no WebSocket the easy way to implement a web application which required a constant flow of information from the server to the client was achieved with the long polling technique; it worked, but was very inefficient because it opened lots of connection instead of only one; basically WebSocket was designed to substitute the long polling technique and making real time data transfer possible with very low overhead.\newline
+WebSocket is a little protocol as we will see, in this section we will analyze the opening handshake followed by the data framing and how the transmission works, then we will briefly discuss the closing handhshake.\newline
+In the end we will discuss about secondary aspects of the protocol.\newline
 
-WebSocket is different from HTTP but it shares some similarities, for instance it works on port 80 and 443 such as HTTP, and it uses similar headers.\newline
+WebSocket provides full-duplex communication channel over a single TCP connection between two hosts.\newline
+When there was no WebSocket the easy way to implement a web application which required a constant flow of information from
+the server to the client was achieved with the long polling technique; it worked, but was very inefficient because it opened
+lots of connection instead of only one; basically WebSocket was designed to substitute the long polling technique and making real time data transfer 
+possible with very low overhead.\newline
 
-This protocol is designed to coexist with HTTP, the fact that they share the same ports is very important in some context where it is not possible to edit the firewall or router configuration very often.\newline
+Even if WebSocket is different from HTTP, they share some similarities; for instance: both work on port 80 and 443; this is not random, in fact these two ports
+are always open on router or firewall, in this way a web application can work even on network where there are lots of port blocked.\newline
+In WebSocket, the server has a standard way to send content to the client without a previous request, excluding the first one sent in order to create the connection.\newline
 
-In WebSocket the server has a standard way to send content to the client without a previous request from the client, excluding the first request sent in order to create the connection.\newline
-
-Now days every mainstream browser supports WebSocket; of course the server must support WebSocket in order to make the web application work.\newline
-
-\subsection{Protocol overview}
 The WebSocket protocol is designed to be nothing more than a layer on top of TCP, it only adds the following features:
 \begin{itemize}
 	\item An origin-based security model for browser.
@@ -24,11 +24,13 @@ The WebSocket protocol is designed to be nothing more than a layer on top of TCP
 	\item Closing handshake designed to work in presence of proxies and other intermediaries.
 \end{itemize}
 
-\subsubsection{Opening handshake}
-In order to establish a WebSocket connection, a client must provide a valid URI, then it opens a connection and sends a handshake.\newline
-If the client has another WebSocket connection to a host, the client must wait until that connection has been established or for that connection to have failed.\newline
-It is not possible to have more than one connection in the \texttt{CONNECTING} state, if multiple connection are needed, the client must serialize them, in order to have only one active connection at a time.\newline
-If for some reason (like a proxy) a client is not capable of determine the IP address of the remote host, then the client must assume that each host name refer to a distinct host.\newline
+\subsection{Opening handshake}
+In order to establish a WebSocket connection, a client must provide a valid URI, then it opens a connection and sends the handshake.\newline
+If the client has another WebSocket connection to a host, then the client must wait until that connection has been established or for that connection to have failed.\newline
+It is not possible to have more than one connection in the \texttt{CONNECTING} state, if multiple connection are needed,
+the client must serialize them, in order to have only one active connection at a time.\newline
+If for some reason (like a proxy) a client is not capable of determine the IP address of the remote host,
+then the client must assume that each host name refer to a distinct host.\newline
 
 If a client is configured to use a proxy, then the WebSocket protocol should connect to the proxy and ask it to open a connection to the specified host on the given port.\newline
 
@@ -36,21 +38,8 @@ If the connection establishment process fails, then the client must abort the co
 
 If the client tries to establish a secure connection then a TLS handshake is mandatory, and all the further communication must be on the encrypted channel.\newline
 
-After the establishment of a connection, the client must send an opening handshake to the server, it is defined as follows:
-\begin{itemize}
-	\item It must be a HTTP request with the Upgrade header with websocket as value.
-	\item It must be a valid GET HTTP request with at least version 1.1.
-	\item The \texttt{Request-URI} header must match the resource name specified in the WebSocket URI.
-	\item It must have a \texttt{Host} header which must contains the host name specified in the WebSocket URI.
-	\item It must have a \texttt{Connection} header field with Upgrade as value.
-	\item It must have a \texttt{Sec-WebSocket-Key} header field which contains a 16-byte randomly value encoded as a base64 string.
-	\item It must have a Origin header field if the request is coming from a browser, it specifies the origin of the code that tries to establish a WebSocket connection.
-	\item It must have a \texttt{Sec-WebSocket-Version} header field with 13 as mandatory value.
-	\item It may have a \texttt{Sec-WebSocket-Protocol} header that specifies one or more subprotocol the client wishes to use, each protocol is separated by a comma.
-	\item It may have a \texttt{Sec-WebSocket-Extension} header field that specifies the protocol level extension the client wishes to use.
-	\item It may include other header field, such as cookies or authorization header.
-	
-\end{itemize}
+After the establishment of a connection, the client must send an opening handshake to the server; it is simply a valid GET request with the following headers: \texttt{Upgrade}, \texttt{Request-URI}, \texttt{Host}, \texttt{Sec-WebSocket-Key}, \texttt{Sec-WebSocket-Version}, \texttt{Sec-WebSocket-Protocol}, \texttt{Sec-WebSocket-Extension}.\newline
+The \texttt{Sec-WebSocket-Key} header contains a 16-byte randomly generated token encoded in base64, while the \texttt{Sec-WebSocket-Protocol} header specifies one or more subprotocol the client wishes to use; the other header are technicalities that we can skip and refer to the RFC.
 
 This is an example of client handshake message:
 \begin{lstlisting}
@@ -68,52 +57,47 @@ Except for the first line, all the headers are not in a precise order.\newline
 
 The client sends the handshake and wait for the response, when the server receives the client’s handshake it must handle it in the way we will now describe.\newline
 
-When a server receives a WebSocket connection request, the request will appear as a regular HTTP request with an Upgrade header.\newline
+When the server receives a WebSocket connection request, the request will appear as a regular HTTP request with an Upgrade header.\newline
+At first the server must check if the handshake request received is correct by verifying the previously cited headers;
+after that, if the server chooses to accept the incoming connection, it must reply with a valid HTTP response with the following headers: \texttt{Upgrade}, \texttt{Connection}, \texttt{Sec-WebSocket-Accept}, \texttt{Sec-WebSocket-Protocol} and  \texttt{Sec-WebSocket-Extension}.\newline
+The most important is \texttt{Sec-WebSocket-Accept} which contains the hash of \texttt{Sec-WebSocket-Key} header of the client handshake.
 
-At first the server must check if the handshake request received is correct in this way:
-\begin{itemize}
-	\item The request must be a GET HTTP request that specify HTTP/1.1 or higher that includes a Request-URI that should be interpreted as a resource name
-	\item The request must have a \texttt{Host} header field with the server’s authority as value.
-	\item The request must have a \texttt{Upgrade} header field with the value websocket.
-	\item The request must have a \texttt{Connection} header field with the value Upgrade.
-	\item The request must have a \texttt{Sec-WebSocket-Key} header field with a base 64 encoded, when decoded it must be 16 bytes in length.
-	\item The request must have a \texttt{Sec-WebSocket-Version} header with the value 13.
-	\item The request may have an \texttt{Optional} header, it is added by browser, if missing the connection attempt must be treated as not coming from a browser.
-	\item The request may have a \texttt{Sec-WebSocket-Extension} header, with a list of values that the client support.
-	
-\end{itemize}
 
-After checking the request as defined above, if the server chooses to accept the incoming connection, it must reply with a valid HTTP response with the following parameter:
-\begin{itemize}
-	\item A status line with a 101 response code, “HTTP/1.1 101 Switching Protocols”.
-	\item An Upgrade header with the value websocket.
-	\item A Connection header with the value Upgrade.
-	\item A Sec-WebSocket-Accept header with a particular hash, we will describe this procedure in details in a while.
-	\item An optional Sec-WebSocket-Protocol header that specifies the subprotocol choosed by the server.
-	\item An optional Sec-WebSocket-Extension header field with the extension value choosed by the server.
-\end{itemize}
-
-When the client receives the server’s response it must validate it in this way:
-\begin{itemize}
-	\item If the status code of the response is not 101, it handles the response with the proper HTTP procedure implemented for the specified code.
-	\item If in the response the \texttt{Upgrade} header is missing or it contains a value that is not \texttt{websocket} then the client must abort the connection attempt.
-	\item If in the response the \texttt{Connection} header is missing or it contains a value that is not Upgrade then the client must abort the connection attempt.
-	\item If in the response the \texttt{Sec-WebSocket-Accept} header is missing or it contains a value that is not the expected hash, then the client must abort the connection attempt.
-	\item If the response has the \texttt{Sec-WebSocket-Extension} header and it has a value that was not present in the client’s handshake, then the client must abort the connection attempt.
-	\item If the response has the \texttt{Sec-WebSocket-Protocol} header and it has a value that was not present in the client’s handshake, then the client must abort the connection attempt.
-\end{itemize}
-
+When the client receives the server’s response it must validate the previous headers, in particular it must check if the 
+content \texttt{Sec-WebSocket-Accept} is the hash expected.\newline
 When the handshake is complete and is successful the data transfer starts, each side can send data.\newline
 
 \textbf{Note:} the \texttt{Sec-WebSocket-Protocol} can be used to specify a sub-protocol that the client can accept, in this case we are talking about an application level protocol and not a protocol that lives in the TCP/IP stack; this header allows the server to provide the service in a suitable form for the client.
 
-\subsubsection{Data framing}
+\subsection{Data framing}
+\begin{bytefield}[bitwidth=1.1em]{32}
+	\bitheader{0-31} \\
+	\begin{rightwordgroup}{WebSocket Frame}
+		\bitbox{1}{\rotatebox{90}{\tiny Fin}}
+		& \bitbox{1}{\rotatebox{90}{\tiny RSV1}}
+		& \bitbox{1}{\rotatebox{90}{\tiny RSV2}}
+		& \bitbox{1}{\rotatebox{90}{\tiny RSV3}}
+		& \bitbox{4}{Opcode}
+		& \bitbox{1}{\rotatebox{90}{\tiny Mask}}
+		& \bitbox{6}{Payload length}
+		& \bitbox{17}{Extended payload length}\\
+		& \bitbox{32}{Extended payload length (2)}\\
+		& \bitbox{16}{Extended payload length (3)}
+		& \bitbox{16}{Masking key if mask is set to 1}\\
+		& \bitbox{16}{Masking key continued}
+		& \bitbox{16}{Payload data}\\
+		& \bitbox{32}{Payload data continued}\\
+		& \bitbox{32}{Payload data continued}
+	\end{rightwordgroup}
+	
+\end{bytefield}
+
 Data is transmitted via a sequence of frames, and a sequence of frames forms a message.\newline
 A client must mask all frames that it sends to the server, and the server must close the connection when it receives unmasked data, also it may send a Close frame with the status code 1002.\newline
 
 A server must not mask any frames that it sends to the client, on the other hand, if the client receives a masked frame, then it must close the connection and it may send a Close frame with the status code 1002.\newline
 
-A frame is defined by:
+A frame is formed by:
 \begin{itemize}
 	\item An Op-code
 	\item Payload length
@@ -154,12 +138,10 @@ A WebSocket frame is defined by the following fields:
 	\end{itemize}
 \end{itemize}
 
-%aggiungere schema payload 
 
 The masking does not change the length of the Payload data.\newline
 
-The primary purpose of fragmentation is to allow the client and server to allocate a reasonable size buffer in order to avoid a continuous resize of the message buffer.\newline
-When the buffer is full, the fragment is written to the network.\newline
+The primary purpose of fragmentation is to allow the client and server to allocate a reasonable size buffer in order to avoid a continuous resize of the message buffer; when the buffer is full, the fragment is written to the network.\newline
 
 A secondary purpose is for multiplexing, that allows to split the message in smaller fragments in order to share the output channel with other messages.\newline
 
@@ -184,7 +166,7 @@ There are only two data frames:
 \end{enumerate}
 
 \subsection{Sending and receiving data}
-After the establishment of a connection it is possible to send and receive data; in order to send data an endpoint must perform the following steps.
+After the establishment of a connection it is possible to send and receive data; in order to send data an endpoint must perform the following steps:
 \begin{itemize}
 	\item It must check that the WebSocket connection state is OPEN, if the state changes, the endpoint must not send any data.
 	\item The data to be send must be encapsulated in a frame, if the data does not fit it may encapsulate the date in a series of frames.
@@ -196,7 +178,7 @@ After the establishment of a connection it is possible to send and receive data;
 \end{itemize}
 
 In order to receive data an endpoint listens on the underlying connection, data must be parsed as WebSocket frame,
-if the endpoint parses a control frame it must handle it in the proper way.\newline
+if the endpoint parses a control frame it must be handled as defined by the protocol.\newline
 
 If a frame is part of a fragmented message, then the Application data of the subsequent data frames is concatenated in order to form the data.\newline
 When the last fragment is received, it is indicated by the frame-fin, then a message is received.\newline
@@ -205,14 +187,8 @@ When the last fragment is received, it is indicated by the frame-fin, then a mes
 To close the connection properly there is also a closing handshake procedure: the client or
 the server can send a control frame with a specified control sequence in order to begin the closing procedure.\newline
 
-The closing handshake can be initiated by both simultaneously without any problem.\newline
-It works in the following way:
-\begin{itemize}
-	\item The client sends the control frame
-	\item The server sends a Close frame in response
-\end{itemize}
-
-\textbf{Note:} even the server can start the closing handshake so it is not mandatory for the client to be one that starts the closing procedure.\newline
+The closing handshake can be initiated by both simultaneously without any problem, and it is a very simple procedure:
+the client sends the control frame and the server sends back a Close frame as response, as said the opposite works fine.\newline
 After sending the control frame that will end the connection, the peer does not send any other data over the channel.
 
 \subsection{Origin security model}
@@ -230,20 +206,21 @@ The two URIs are defined as follow:\newline
 
 The difference are the following: a double s at the beginning and the default port, for ws is 80 and for wss is 443.\newline
 
-The host could be an IP literal, an IPv4 address or a registered name, while dealing with the first two the request could be send directly, but if we are dealing with a registered name we first need to resolve it via DNS.\newline
+The host could be an IP literal, an IPv4 address or a registered name; while dealing with the first two, the request could be send directly, but if we are dealing with a registered name we first need to resolve it via DNS.\newline
 
 The port can be omitted if the default values is used, otherwise it must be specified in order to communicate with the right process on the server.\newline
-
 The path contains data, usually organized in hierarchical form, used to identify a particular resources.\newline
-
-At the end the query component contains a set of data divided by the question mark, it is used to provide extra content with the request.\newline
+At the end, the query component contains a set of data divided by the question mark, it is used to provide extra content with the request.\newline
 
 \subsection{Security perspective}
-Even if the WebSocket protocol is designed to be used inside a web browser, this does not mean it will always be used from a browser, in fact an attacker could send a forged request by a different client.\newline
+Even if the WebSocket protocol is designed to be used inside a web browser, this does not mean it will always be used inside a browser, in fact an attacker could send a forged request by a different client.\newline
 The server must not trust the input received from a client, it always must check the input in order to avoid possible attack.\newline
 
 If a server is not intended to process input from any web page but from certain sites it should verify the \texttt{Origin} header.\newline
-Of course if an attack sends a request with the proper Origin header the request will be accepted, but it was designed to avoid fake WebSocket connection inside a browser environment, not from a non-browser client.\newline
+Of course if an attack sends a request to the server with the proper Origin header, then the server will accept it, this header was designed to
+avoid fake WebSocket connection inside a browser environment, not from a non-browser client.\newline
 
-\subsection{Implementation and real world application}
-to do...
+\subsection{Implementation}
+Now days every mainstream browser supports WebSocket; of course the server must support WebSocket in order to make the web application work.\newline
+Server side WebSocket are implemented as stand-alone library or even as modular component for standard web server.\newline
+A little search on GitHub can lead us to library for every important programming languages.
