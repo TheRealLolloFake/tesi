@@ -3,18 +3,23 @@
 \section{Personal experience in the company}
 
 During my internship at Abo Data I had the opportunity to work on different real world application and I was able to notice some security problem that I fixed.\newline
-In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage for Abo Data.
+In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage Abo Data.
 
-Application 1 is an IoT application which manages train networks, the dashboard that allows the user to control the network
-is a web application.\newline
+Application 1 is an IoT application which manages train networks and provide a dashboard that allows the user to control the network; the dashboard is implemented as a web application.\newline
 
-Application 2 is an IoT application which deals with tyres, it is a large system developed by Abo Data and another important company, 
-this system allows to track vehicles and monitor the tyres status in order to provide data to the end user.\newline
-These data can be used for lots of different tasks: the end user can track his fleet of vehicles and monitor if everything is right, while
-the tyres company can verify that the tyres produced comply with the standard.\newline
+Application 2 is another IoT application which deals with fleet of vehicles and their tires, it is a large system developed by Abo Data and another important company, 
+this system allows to track vehicles and monitor their tires status in order to provide data to the end user.\newline
+The telemetry gathered from a vehicles may include: speed, location, engine parameter, G-force experience during cornering, braking and acceleration.\newline
+This kind of information can be used to track the status of a vehicle, in order to verify if everything is working well and to avoid unwanted faults on vehicles.\newline
+All the data are collected and stored on clouds and database, in this way an user can review the data in order to take decision; usually to reduce fuel consumption.\newline
+These data can be used for lots of different tasks: the end user can track his fleet of vehicles and monitor if everything is right, while the tires company can verify that the tires produced comply with the standard.\newline
+This also allows us to talk about maintenance of vehicles and tires from a different point of view: from a time based
+approach, where the vehicle and its tires are controlled every X year, to a predictive based approach where the maintainer acts on the vehicle when the data elaborated with various technique allows him to predict fault or imminent failure.\newline
+The system works in this way: there are sensors placed on the vehicle, each sensor communicates (wireless channel) with a central control unit that collects data and forwards them,  via a wireless channel, to a remote server that will elaborate the received data.\\
+
 I worked on a sub-system known as Single Sign On (SSO), this sub-system allows users to log into more than one system
-with only one credendentials with the help of a token.\newline
-When I started my internship this sub-system of the system was not ready, for this reason we focused on making it secure by design, this lead us on working a bit more on the analysis of the sub-system before starting with the real implementation in order to avoid secuirty flaws that could be difficult to fix in future.\newline
+with only one credentials with the help of a token.\newline
+When I started my internship this sub-system was not ready, for this reason we focused on making it secure by design, this lead us on working a bit more on the analysis of the sub-system before starting with the real implementation in order to avoid security flaws that could be difficult to fix in future.\newline
 
 
 \subsection{Problems detected}
@@ -27,7 +32,7 @@ Application 1 has four important flaws:
 \end{enumerate}
 
 The first flaw allowed a malicious user to log into the system with higher privilege by simply changing a line of code in the JavaScript code on the client side.\newline
-The system was designed in this way: the client sends username, password and the privilege level to the server, at the beginning the privilege level is set to 0, but if the login is successful, then this value is update with the real level of the user.\newline
+The system was designed in this way: the client sends username, password and the privilege level to the server, at the beginning the privilege level is set to 0, but if the login is successful it is update with the real level of the user.\newline
 The user’s privilege level was needed on the client side in order to choose which options to show to the user based on his actual privileges, so the application did not show to the user all the features, but they were available for use but hidden.\newline
 Of course, by setting the privilege level to the maximum, it was possible to access all the features of the application without restriction.\newline
 All the functionalities, reserved to high privilege user, were available to users with low privilege because on the server side there was no check of the user privilege.\newline
@@ -37,18 +42,35 @@ In order to fix this flaw the login method on the server was modified in order t
 The second flaw is strictly related with the first one, as the server trusted the client, it did not check if the user has the right privilege to perform a certain action.\newline
 Basically, the server received a request and performed it without any control about the user who sent it.\newline
 In order to fix this flaw it was necessary to add control on top of each method that performed an action that required a certain privilege.\newline
-One side effect of this problem forced us to re-design the token management of the application, that is because during the login the user was associated with the privilege level sent by the client, so adding the control was not enough, in fact if a malicious user log into the system with an high privilege level, the server will trust him and associate a token with his fake privilege level.\newline
+One side effect of this problem forced us to re-design the token management of the application, that is because during the login the user was associated with the privilege level sent by the client, so adding the control was not enough, in fact if a malicious user log into the system with an high privilege level, the server would have trusted him and would have associated a token with his fake privilege level.\newline
 In order to make it work properly it was necessary to associate the privilege level saved in the database.\newline
 
-The third flaw was the easiest to fix because it required changing only one part of the code.\newline
+The third flaw was the easiest to fix because it required changes only in one part of the code.\newline
 The passwords were saved on the DB with the aid of symmetric cryptography; the encryption key was stored in a configuration file.\newline
 Saving passwords in this way is not secure because symmetric cryptography is, by design, reversible; a password must be stored on a DB with the aid of a one way function, like a hash function or a key derivation function.\newline
 To fix this flaw we replaced the symmetric cryptography algorithm with a key derivation function, the DB required some change in order to store the number of iteration and the salt.\newline
+
 The fourth flaw was another easy one because it required replacing String with array of char, this change was needed in order to minimize the exposure of sensible data and to reduce the success of cold boot attack.\newline
+Fortunately the amount of code was limited, otherwise changing lots of occurrences of String related with sensible data would have been a mess.\\
 
-These four flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some component of an application are strictly related each other.
+These four flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some components are strictly related each other.\\
 
-\subsection{Analysis of the security aspect}
+The system have a simple mechanism to avoid brute force attack, after three attempts the account under attack is locked and there is no way to access
+until it is unlocked by an administrator.\\
+From a point of view this seems like a reasonable solution, but take in mind that an attacker could try to lock all the account in order to carry out
+a DoS (as counter measure there is a special administrator account that can not be locked).\\
+Talking about XSS vulnerabilities, it seems like the system is not vulnerable and this is good, behind the application runs Angular, which is a
+framework to develop single page web application, even if I do not really like it because I think it is overly verbose and often makes simple task more complicated due to its imposition, it provides a dual-way data binding that takes care about preventing XSS vulnerabilities.\\
+I tried several times to inject code in order to discover vulnerabilities, but Angular always avoided my injections, that is because Angular
+does not allow execution of inline JavaScript code.\\
+
+The application uses WebSocket to communicate with the server, I have noticed that the \texttt{Origin} header is not used and neither the \texttt{Content-Security-Policy}, I was not able to exploit these little vulnerabilities but it must be considered as a warning that something
+should be fixed.\\
+The communication occurs via an unencrypted channel, this means that a MitM can occurs, I do not know if the deployed version
+uses HTTPS and secure WebSocket or not, I can only states that the debug version does not use them, in fact it is possible to simulate
+a MitM with BurpSuite, a penetration test tool that can act as a proxy to inspect the exchange of messages between two hosts, mostly for debug purposes.\\
+
+\subsection{Analysis of the security aspect and conclusion}
 During the internship I noticed that the security aspect during the development of an application is not easy as it could seems.\newline
 From an academic point of view, making a secure application is the main goal, but from a business perspective, the same goal is not so easy to reach because there are other factors that must be kept in mind.\newline
 If you are developing an application by yourself and for yourself, you have no deadline, no customers to meet and no budget limitations.\newline
@@ -56,15 +78,15 @@ On the other hand, if you are in a company, you are developing an application fo
 \begin{itemize}
 	\item Relationship with him
 	\item Deadlines
-	\item Support the application for a certain period of time
+	\item Support for the application after the release
 \end{itemize}
 
 In order to maintain a solid relationship with your costumer, deadlines must be respected, and here the development of the application comes to play; including security in the development of an application may seems easy at the beginning, but it is not so simple as it may seems and it may cost lots of time, and when there is a deadline the goal is to finish the job, no matter if the application is secure or not.\newline
 This is one reason why some developers simply avoid security aspect during the development of an application.\newline
 
-Another reason is about money, some customers are not interested or not even aware about security issues that an application could have, so they are not simply interested in paying for it, but when a security flaws occurs they will surely come yelling at you.\newline
-In this case, I think that if you could add security to an application and the time spent is equal to the time spent in making the same thing in an unsecure way, then I suggest you to go for the secure way.\newline
-Of course if something requires lots of time, avoid it or talk about it with the customer and convince him to pay for the additional security features.\newline
+Another reason is about money, some customers are not interested or not even aware about security issues that an application could have, so they are not simply interested in paying for it, but when a security problem occurs they will surely come yelling at you.\newline
+In this case, I think that if you could add security to an application and the time spent is equal to the time spent in making the same thing in an insecure way, then I suggest you to go for the secure way.\newline
+Of course if something requires lots of time, talk about it with the customer and convince him to pay for the additional security features.\newline
 Usually, when company A sells an application to company B, company A provides a technical support for a certain period of time, it means that company A must adjust the software if something is not working properly, and it should provide updates.
 If there is no time to add a certain feature at the first release, it could be added later with an update.\newline
 
@@ -72,8 +94,87 @@ During the development of software, it is common that the development team adopt
 From what I have noticed it is the right choice because the application requirements are changing frequently, but from the security point of view I think it is a bit problematic and could lead to flaws in the code.\newline
 The security part on an application should be defined in way that allows the development team to edit it at least as possible.\newline
 
-The security part should also be developed with particular care in order to be updated easily in the future, suppose that the hashing algorithm you are using in your application is marked as unsecure for some reasons, then you should update your application, but of course an update has a cost and requires a certain amount of time in order to be completed, if the code is monolithic it will be difficult and expensive to update, on the other hand if the code is modular it will be easy.\newline
+The security part should also be developed with particular care in order to be updated easily in the future, suppose that the hashing algorithm employed in your application become insecure for some reasons, then you should update your application, but of course an update has a cost and requires a certain amount of time in order to be completed, if the code is monolithic it will be difficult and expensive to update, on the other hand if the code is modular it will be easy.\newline
 Another thing to take in mind is that in the IoT world we also deal with constrained devices, if for some reason you need to change the algorithm for a new one you should check if your constrained devices are capable of handling the new algorithm, otherwise you should stick with the old algorithm or use powerful devices. Of course here you have to find a trade-off.\newline
-From my experience I noticed that implementing a security feature or fixing a security flaws is difficult in software that is in an advanced stage of development, it may require substantial changes to the whole project, this could slow down the development and it could be difficult to respect the deadline.\newline
+From my experience I noticed that implementing a security feature or fixing security flaws is difficult in software that is in an advanced stage of development, it may require substantial changes to the whole project, this could slow down the development and it could be difficult to meet the deadline.\newline
 Basically, security should be part of the application since the requirements phase, or big problems will emerge later on.\newline
 
+In order to produce a secure software we must focus on two aspects: the development process and the software security testing.\\
+Talking about the development process, there are established methodology like the Security Development Lifecycle (SDL) proposed by Microsoft\cite{microsoftsdl} which provide a standard approach for security development.\\
+SDL introduce some stages in the classic software development life cycle which is composed by:
+\begin{itemize}
+	\item Requirements
+	\item Design
+	\item Implementation
+	\item Verification
+	\item Release
+	\item Response
+\end{itemize}
+Of course, the stages we will discuss soon can be added in different software development methodology without problems.\\
+During the requirements phase, the best practices for security are integrated, they come from industry standard or from
+solution adopted on responses to problems addressed in the past.
+In this phase the functional security requirements are defined in order to be implemented in the final software, 
+these requirements are exactly the same used to define the features of an application, they only focus on the security front.\\
+If the methodology is agile, then the requirements are expressed as user stories, in this case these stories concern the security aspects from the user's point of view.\\
+
+During the design phase a threat modeling is defined in order to define how a system will be attacked, of course this
+activity must occur before the implementation, otherwise it will not be effective.\\
+The threat model is used to understand the attack surface of a certain features and what are the common attacks that
+the development team must face.\\
+It is also important to define a way to mitigate the problem if a certain attack occurs, and it is crucial to identify
+security issues early on.\\
+
+The implementation phase is surely the most difficult one because writing secure code is difficult, and even if you have
+a security team that take care of the most important part of the application, nothing can prevent a normal programmer to introduce a security bug in a part of the application that is considered not critical.\\
+It is important to define coding guideline in a similar way to best practices in order to avoid mistakes by programmers.\\
+It is also important to use tools for static and dynamic application security testing (SAST and DAST), the first one is used to
+identify potential vulnerabilities in the source code, while DAST checks the application at runtime.\\
+
+During the testing phase, in addition to the standard test on the application, we should perform other activities like:
+security functional testing, vulnerability scanning and penetration testing; of course with specific application and tools.\\ 
+
+When the software is finally released, it is shipped to customers or made available for download; of course there will be
+problems, but if everything was done in the proper way they should have been minimized.\\
+During the final response phase, the customer will notify problems occurred with the application in order to receive
+an update that fix them.\\
+
+About security testing there is lots to say because it covers different activities, but I will just give you a small overview:
+\begin{itemize}
+	\item Discovery - this activity does not search flaws in the code but it only focus on identifying the version of software in use, this is important because by the version number we can discover potential vulnerabilities.
+	\item Vulnerability scan - this activity is carried out with automated tools that search for
+	known vulnerabilities in the application.
+	\item Penetration test - it is a simulation of an attack, it tries to exploit flaws in the application like a real attacker.
+	\item Security Review - verifies if security standards have been applied to the system; it is
+	done via analysis of code and different build of the program.
+\end{itemize}
+
+
+Security testing can be conducted in a black box way, where the tester does not know details of the system and the architecture behind it; or
+in a white box settings where the tester has deep knowledges of the system and it may have access to the source code.\\
+Where possible the testing phase is automatized; for searching the open port on a machine we can use nmap, a tool for port scanning; while if we
+need to carry out a buffer overflow we may need to write an exploit and test it manually, of course if a certain vulnerability is known 
+we can use specific tools.\\
+Due to the fact that each application is different, the security testing technique should adapt to the application taken under examination in order
+to be as accurate as possible; for instance if you are testing a web application client side, it is not likely you will find a buffer overflow, but 
+an XSS is more likely.\\
+
+Of course, security testing is quite more difficult compared to standard testing (that is, by itself a difficult task), for this reason companies prefer to avoid it or pay third party that are specialized in this particular activity.\\
+Also take in mind that a security testing may not provide you all the vulnerabilities in your system, but only a certain amount; for this reason it
+is important to take care about your software periodically; when you change a part of your application, you should check that changes do not
+introduce flaws.\\
+
+Another aspect of security I did not mentioned in this thesis is privacy, even if they are two distinct concepts they are related because without security there is no privacy, I think it is important to discuss it a bit due to the fact that recently the General Data Protection Regulation (GDPR)
+has been approved by the European commission in order to strength the protection of personal data of citizens of the European Union.\\
+This new regulation should allow citizens to have more control over their data and it should also make sure that companies implements secure system
+in order to avoid data breach, considering that there are fines if a company does not notify the supervisory authority within 72 hours after becoming aware of the leak; this is also enforced by Article 25 that requires data protection to be designed into the development of business processes\cite{wikica}.\\
+The GDPR also take into consideration the trade of data between companies, an hot topic due to recent events\cite{ca}.\\
+
+
+I want to highlight that even documentation and refactoring are important while dealing with security; most of the time documentation is neglected because it takes lot of time and is not payed by the customer, working on a big project for long time
+requires good documentation in order to understand the purpose of certain code in order to avoid the introduction of flaws.\\
+Talking about refactoring, it is extremely important because it reduces the amount of line of code and
+avoids absurd copy and paste of code; suppose that a particular piece of code is vulnerable and it is executed
+before every method in your code, if you refactored your code you will need to fix your code only once, otherwise
+if you applied the copy and paste "technique" you will need to fix the code before every function, and it is likely that you will forget some occurrences and the flaw will remain in your code; for this reason refactoring is extremely important.\\
+Thus even the maintenance of software plays an important role on security and this should make us consider that every
+aspects in software development, even little details, should be treated with particular care in order to produce secure software.

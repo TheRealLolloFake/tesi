@@ -1,15 +1,15 @@
 	\section{Constrained node network}
-	In this little section we will describe what is a constrained device and what is a constrained node network,
+	In this little section I will describe what is a constrained device and what is a constrained node network,
 	these two concepts are important because they are recurrent in my thesis and without a proper introduction, you may have
 	some doubts. \newline
 	
 	A constrained device is small, has low computational power and little memory, it virtually lacks the resources
-	we could expect from a modern Internet node; examples of constrained device are: sensors, dated micro-controller and hardware platform like Arduino.\newline
-	While dealing with these devices optimization is crucial on various front: the power consumption is not negligible,
+	we could expect from a modern Internet node; examples of constrained devices are: sensors, dated micro-controllers and hardware platform like Arduino.\newline
+	While dealing with these devices, optimization is crucial on various front: the power consumption is not negligible,
 	and the same can be said about the bandwidth usage (if available), even the maximum code complexity and the total RAM available are parameters that we must take into account.\newline
 	When a constrained device is attached to a network it is also identified as a constrained node, two or more nodes form a network that may have some constraints such as: unreliability, lossy channel, dynamic topology and unpredictable bandwidth, and these constraints characterize the constrained network.\newline
 	In order to be more precise, a network is a constrained-node network when the constraints are imposed by the node
-	and not by the network itself.
+	and not by the network infrastructure itself.
 	
 	\input{table/001-constrained-classification}
 	
@@ -20,7 +20,7 @@
 	
 	A device is classified as E0 when the energy is consumed only when a certain event occurs, an E1 device has a battery 
 	that is periodically recharged or replaced.\newline
-	On the other hand an E2 device has a non-replaceable primary battery and when it exhausts, the device life cycle ends; lastly an E3 device has un unlimited source of energy so it is not constrained on this front.\newline 
+	On the other hand an E2 device has a non-replaceable primary battery and when it exhausts, the device life cycle ends; lastly an E3 device has an unlimited source of energy so it is not constrained on this front.\newline 
 	
 	The main sources of energy consumption are: wireless and long communication; in order to save as much energy as possible different strategies can be applied in various scenarios.\newline
 	If there is no need for extreme power saving a device can be always on, in this case it is necessary to use power friendly hardware in order to avoid wastes of energy and money.\newline

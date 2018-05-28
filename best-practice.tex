@@ -1,8 +1,8 @@
-\section{Best practice}
+\section{Best practices}
 As an IoT application is designed as illustrated in figure \ref{fig:best0}, the development of an IoT application is split on two sides:
 \begin{enumerate}
-	\item IoT side - The part of the application that deals with sensors, devices and handle the communication between them and the main server.
-	\item Client side - The part of the application that allow the final user to control the application.
+	\item IoT side - The part of the application that deals with sensors, devices and handles the communication between them and the main server.
+	\item Client side - The part of the application that allows the final user to control the application.
 \end{enumerate}
 
 
@@ -12,23 +12,23 @@ As an IoT application is designed as illustrated in figure \ref{fig:best0}, the 
 	\label{fig:best0}
 \end{figure}
 
-In order to develop a secure IoT application we must work on both sides, we have seen, in the previous chapter, how to attack and secure the communication between IoT devices and the main server, but we have not talked about the client side.\newline
+In order to develop a secure IoT application we must work on both sides; we have seen, in the previous chapter, how to attack and secure the communication between IoT devices and the main server, but we have not talked about the client side.\newline
 
 The client side of an IoT application can be developed in different way, from a web application to a stand-alone application for Desktop or smartphone.\newline
-From our experience in the company, the client side is developed as a web application in order to make it available both on desktop and smartphone without the need of developing two different application.\newline
-It is important to highlight that each side must be treated with care, in fact it is useless to focus only on one side and left the other completely unsecure; an attacker will exploit the weak ring of your chain to compromise your application, so the overall security of your system is equal to the weak ring security.\newline
+From my experience in the company, the client side is developed as a web application in order to make it available both on desktop and smartphone without the need of developing two different application.\newline
+It is important to highlight that each side must be treated with care, in fact it is useless to focus only on one side and left the other completely insecure; an attacker will exploit the weak ring to compromise your application, so the overall security of your system is equal to the weak ring security.\newline
 Basically, the same effort must be done on both sides of the application.\newline
 
 In this section, we will list down and discuss the best practice that you should follow in order to write secure IoT application from the client side point of view.\newline
-We would also like to highlight that these best practice can be applied in all application development, they are not strictly related with IoT, that is because some section of an application, like for instance: password handling are present in lots of application that may have little in common to the IoT world.\newline
-We will provide code to support our discussion where possible; if the use of code is not easy, we will use pseudo-code instead.\newline
+I want to highlight that these best practices can be applied in all application development, they are not strictly related with IoT, that is because some section of an application, like for instance: password handling are present in lots of application that may have little in common to the IoT world.\newline
+I will provide code to support my discussion where possible; if the use of code is not easy, we will use pseudo-code instead.\newline
 
 \subsection{Never trust the client}
 During the development of a client/server architecture, communications between the two parts is essential, but in order to develop a bulletproof application it is important to check always data received by the server.\newline
 
-In order to have an example in mind we will refer to the classic web application model where the client side application run on a browser like Mozilla Firefox or Google Chrome, and where the server side application is written in PhP or similar languages.\newline
+In order to have an example in mind we will refer to the classic web application model where the client side runs on a browser like Mozilla Firefox or Google Chrome, and where the server side application is written in PhP or similar languages.\newline
 
-Even if we are the developer of the client, the server must performs a check of the data received; the client may be used by a malicious user or the attacker may simply sends data to our server without the aid of the client application with tools like cUrl, Postman or Telnet.\newline
+Even if we develop the client, the server must performs a check of the data received; the client may be used by a malicious user or the attacker may send data to our server without the aid of the client application with tools like cUrl, Postman or Telnet.\newline
 
 Basically, when the server receives some data, before performing any operation it must:
 \begin{enumerate}
@@ -43,14 +43,14 @@ Now we will discuss in the details the five points.\newline
 
 \begin{enumerate}
 	\item	Most of the time, in order to provide a service or to allow the user to perform a certain action on our web application we want to authenticate the user, but sometimes this is not true, for instance: when a user does not have an account for our application we want to provide him a way to sign in, in this particular case we are allowing a user to execute an operation without authentication, just because he does not have login credential; note that the sign in of a user is a very critical point in your application, we will discuss about it in another best practice.
-	\item At this point we simply want to check if the data received from the user are conform to what we expect, for instance if we expect to receive a short comment limited a 260 character, we must check that the provided comment does not exceed the limit; if we are dealing with file uploaded from a user it is extremely important to check if the provided file is not a malicious one, for instance suppose that we receive an image from the user, simply control like checking the extension of a file is absolutely a bad idea, in fact the extension of a file can be changed so it is possible to save a malicious executable program as a .png and upload it to a remote server, a better way to check that the image upload is really an image is checking the magic number also known as the file signature, data used to identify or verify the content of a file.
+	\item At this point we want to check if the data received from the user are conform to what we expect, for instance if we expect to receive a short comment limited to 260 character, we must check that the provided comment does not exceed the limit; if we are dealing with file uploaded from a user it is extremely important to check if the provided file is not a malicious one, for instance suppose that we receive an image from the user, simple control like checking the extension of a file is absolutely a bad idea, in fact the extension of a file can be changed, thus it is possible to save a malicious executable program as a .png and upload it to a remote server, a better way to check that the image uploaded is really an image is checking the magic number also known as the file signature, data used to identify or verify the content of a file.
 	Note that each type of data may need particular care, file are more complex to check instead of raw data like strings or integers; the suggestion is to study in details how to sanitize the particular data you are handling.
-	\item In order to avoid SQL Injection, data loss and data leak, it is important to always sanitize a data used as a parameter for a query, a SQL Injection may drop the entire DB, or could silently leak information like username or password hash (we hope you do not have password saved as plaintext). Now days is quite trivial to avoid these kind of attack with the aid of prepared statement, which allows us to bind parameters in query in a very safe way.
+	\item In order to avoid SQL Injection, data loss and data leak, it is important to always sanitize a data used as a parameter for a query, a SQL Injection may drop the entire DB, or could silently leak information like username or password hash (I hope you do not have password saved as plain text). Now days is quite trivial to avoid these kind of attack with the aid of prepared statement which allows us to bind parameters in query in a very safe way.
 	In general, prepared statement are supported by DB library of every important programming language and most of the case can be handled nicely with them.
 	Anyway there are case where using a prepared statement is infeasible, if you want to allow a user to write down a query and execute it, using a prepared statement is difficult or even impossible, so you need to manually check the provided query.
-	These warnings are valid even for NoSQL system, in this particular case there are no standard like for SQL system, so it may be more difficult to avoid them because there are no standard techniques.
-	\item It is important to check the privilege associated to a user because we do not want everyone to execute operations that may change drastically your server application or even destroy it, without proper check even the user with lowest privilege may execute operation reserved only to user with high privilege such as an administrator.
-	Basically, what you need to do is placing an if statement where you check the user’s privilege before the critical operation, of course the user’s privilege is a data taken from your DB or other verified source, so the privilege level is something that is not sent from the client in order to avoid easy privilege escalation.
+	These warnings are valid even for NoSQL system, in this particular case there are no standard like for SQL system, so it may be more difficult to avoid them considering that there are no standard techniques.
+	\item It is important to check the privilege associated to a user because we do not want everyone to execute operations that may change drastically our server application or even destroy it; without proper control, even the user with lowest privilege may execute operation reserved only to user with high privilege such as an administrator.
+	Basically, what we need to do is placing an if statement where we check the user’s privilege before the critical operation, of course the user’s privilege is a data taken from your DB or other verified source, so the privilege level is something that is not sent from the client in order to avoid easy privilege escalation.
 	\item There is nothing to say about this point.
 \end{enumerate}
 
@@ -60,11 +60,12 @@ The golden rule is: never trust the client.
 As we have seen, a server must not trust input from a client and it must sanitize them before using them, from the point of view of a client could seems strange to doubt about the server, but in reality the client must treat with care data received from the server because it could be a corrupted server or even a fake server.\newline
 The scenarios are the following:
 \begin{itemize}
-	\item An attacker has taken control of the server and he uses it to send malicious data.
-	\item An attacker has hacked a DNS server and when the client tries to connect to the legitimate server, in reality is connected to the attacker server.
+	\item An attacker has taken control of the server and uses it to send malicious data.
+	\item A DNS server has been corrupted by an attacker, when a client tries to obtain the address of the legitimate server, is redirected to
+	a corrupted server.
 \end{itemize}
 
-The first is more realistic because a custom server may have more flaws that could be exploited, while a DNS server has been tested for years and is managed by Internet provider which we can assume (and hope) have high security standard.\newline
+The first is more realistic because a custom server may have more flaws that could be exploited, while a DNS server has been tested for years and is managed by Internet provider which we assume (and hope) have high security standard.\newline
 Let us see a flaw in a web application.
 
 \begin{lstlisting}[language=html]
@@ -99,11 +100,11 @@ req.send();
 ?>
 \end{lstlisting}
 
-The client side code is composed by an html webpage and a JavaScript code that perform an AJAX request to the malicious.php page on the server.\newline
+The client side code is composed by an html webpage and a JavaScript code that perform an AJAX request to the \texttt{malicious.php} page on the server.\newline
 \textbf{Note:} in this case we choosed to use an AJAX request for simplicity, but nothing forbids us from using a WebSocket.\newline
 While the server simply sends back a string, but this string contains JavaScript code.\newline
 The problem here is that the client, in order to show the data received from the server, to the final user copies the content of \texttt{responseText} in the \texttt{innerHtml} of the \texttt{div} with \texttt{id=”placer”}.
-In this particular case the data expected to be text, in reality is an html image tag containing JavaScript code for error handling (the image will never load), this code is added to the DOM and the JavaScript code executed.\newline
+In this particular case the data expected to be text, in reality is an html image tag containing JavaScript code for error handling (the image will never load), this code is added to the DOM and the code executed.\newline
 In this case the code is a simple alert and does nothing to harm the client, but in a real scenario the malicious script will not be something so simple.\newline
 The main problem here is that the client assumed that the data was safe and copied it to the innerHtml of a DOM element without sanitizing it.\newline
 
@@ -121,7 +122,7 @@ On the internet, you can find this nice piece of code to sanitize a string:
 
 
 The problem about this function is that it does not provide any security, so always check what you copy and paste in your code; it does not mean that what claimed is really what the code does.\newline
-There are libraries around the web that provide function to sanitize string, one of the most famous is surely jQuery, it also offer other features but the \texttt{html()} function is great to avoid un-wanted code execution when you need to place data on the DOM.\newline
+There are libraries around the web that provide function to sanitize string, one of the most famous is surely jQuery, it also offer other features but the \texttt{html()} function is great to avoid unwanted code execution when you need to place data on the DOM.\newline
 This could be the structure of a correct handling of data received from the server.\newline
 \begin{lstlisting}
 var placer=document.getElementById(“placer”);
@@ -129,14 +130,13 @@ var sanitized=realSanitize(this.responseText);
 placer.innerHtml=sanitized;
 //aggiungere riferimento
 \end{lstlisting}
-The easy way to sanitize string is to rely on well-known libraries, but if for some reason you could not use them, the solution is to write your own sanitization function that will likely use regular expression, but be careful because it could be more difficult than expected and error prone, so test your code with care before using it in a release environment.\newline
+The easy way to sanitize string is to rely on well-known libraries, but if for some reason you could not use them, the solution is to write your own sanitation function that will likely use regular expression, but be careful because it could be more difficult than expected and error prone, so test your code with care before using it in a release environment.\newline
 
 \subsection{Password handling}
-Password handling is a very critical section of every application, a password is a very sensible data that must be treated carefully at different level, we will analyze how to handle password from the code and database perspective.\newline
+Password handling is a very critical section of every application, passwords are sensible data that must be treated carefully at different level, we will analyze how to handle password from the code and database perspective.\newline
 
 \subsubsection{Handling password in code}
-As said, a password is sensible data and it must be handled in a special way even from the code point of view.\newline
-In lots of code you can find snippet like the following:
+A password must be handled in a special way, in lots of code you can find snippet like the following:
 \begin{lstlisting}[language=java]
 String username=”user0”;
 String password=”mypass0”;
@@ -149,11 +149,11 @@ The real problem here is that the password is handled as a String, in high level
 password=””;
 \end{lstlisting}
 
-We are not erasing the previous password content, we are simply changing the reference of the variable \texttt{password}, so the previous data are somewhere in memory, and it will be overwritten only when the garbage collector mark the area of memory as free and a new data is allocated in this particular area.\newline
-If an attacker can dump the process or perform cold boot attack, he can steal login credential and other sensitive data.
-It is important to highlight that if an attacker can perform the previous operation you also have to deal with the fact that your system is vulnerable in some ways or that the machine where the program run is accessible to malicious users.\newline
+We are not erasing the previous password content, we are changing the reference of the variable \texttt{password}, so the previous data are somewhere in memory, and it will be overwritten only when the garbage collector mark the area of memory as free and a new data is allocated in this particular area.\newline
+If an attacker can dump the process or perform cold boot attack, he can steal login credential and other sensible data.
+It is important to highlight that if an attacker can perform the previous operation you also have to deal with the fact that your system is vulnerable and compromised in some ways, or that the machine where the program runs is accessible to malicious users.\newline
 In order to avoid data leak, we want to reduce the exposure of sensible data in our application as much as possible.\newline
-In order to overwrite a password, we need a data structure that allows this operation, the easy way is to use an array of character instead of a string just like we deal with string in low-level languages like C.\newline
+In order to overwrite a password, we need a data structure that allows this operation, the easy way is to use an array of character instead of a string just in the way we deal with string in low-level languages like C.\newline
 So, the previous snippet of code change in this way:
 \begin{lstlisting}[language=Java]
 String username=”user0”;
@@ -167,16 +167,16 @@ The main drawback of using an array of character is that is not comfortable, it 
 When the password is no more needed in our code we need to erase the content of the password, this could be done easily with this utility function:
 \begin{lstlisting}[language=Java]
 	public void destroy(char[] arr){
-	for(int i=0;i<arr.length;i++)arr[i]=’0’;
+		for(int i=0;i<arr.length;i++)arr[i]=’0’;
 	}
 \end{lstlisting}
 
 Always remember to erase the data when it is no more needed, otherwise all the work done to secure the password handling is wasted.\newline
-Note: when you are dealing with a password, it is likely that you want to hash or encrypt it, most of the times cryptographic libraries deals with array of byte, converting an array of char to an array of byte is trivial so designing your system with this knowledge in mind could help you.\newline
-Also note that if you convert an array of character to an array of byte, the previous one is no more needed so erase its content and deal with the second one until you have finished your task, and remember to erase even this one.\newline
-Basically, what we are trying to do is limiting the exposure of sensitive data in memory, as much as possible, of course if an attacker dump the process when the password is exposed there is no way to avoid the leak, but with this little shrewdness we can make the task more difficult.\newline
+\textbf{Note:} when you are dealing with a password, it is likely that you want to hash or encrypt it, most of the times cryptographic libraries deals with array of byte, converting an array of char to an array of byte is trivial so designing your system with this knowledge in mind could help you.\newline
+Also remember that if you convert an array of character to an array of byte, the previous one is no more needed so erase its content and deal with the second one until you have finished your task, and remember to erase even this one.\newline
+Basically, what we are trying to do is limiting the exposure of sensible data in memory as much as possible; of course if an attacker dump the process when the password is exposed there is no way to avoid the leak, but with this little trick we can make the task more difficult.\newline
 Sometimes it may not be possible handle a password in this way for lots of different reason.\newline
-For example in high level scripting language like JavaScript the primitive type char does not even exists, there is no easy way to handle a password without a string, you may think to handle it like an array of numbers, but most of the time the game does not worth the candle.\newline
+For example in high level scripting language like JavaScript the primitive type char does not even exists, there is no easy way to handle a password without a string, you may think to handle it like an array of numbers, but it may be an overkill.\newline
 Another example is the bad design of a library, suppose that you buy an API that require a login and the signature of the login function is the following:
 \begin{lstlisting}
 void login(String usr, String pwd);
@@ -186,19 +186,19 @@ In situation like that, there is nothing we can do, we cannot edit the signature
 Handling the password like a character array is meaningless if you then need to convert it to a String.\newline
 
 In C\# there is a special object called \texttt{SecureString} it provides a way to deal with password in a secure way, the content of a string is created via insert of single character, and the content of the string is encrypted in memory.\newline
-It seems like a great way to deal with password but some of the API of C\# that requires a password as argument expect a String, so the utility of this object is not so high, also note that it does not provide any access to the content of the string (and sooner or later we will need to use the content), the only way to access it is to convert the \texttt{SecureString} object to a String with the aid of the static method \texttt{SecureStringToGlobalAllocUnicode(…)} of the \texttt{Marshal} class, that returns a \texttt{IntPtr} that can be converted in a \texttt{String} with the static method \texttt{PtrToStringUni(…)} of the \texttt{Marshal} class, but doing that simply throws away all the effort made in order to secure the password in memory considering that we are dealing again with a \texttt{String}.\newline
+It seems like a great way to deal with password but some of the API of C\# that requires a password as argument expect a String, so the utility of this object is not so high, also note that it does not provide any access to the content of the string (and sooner or later we will need to use the content), the only way to access it is to convert the \texttt{SecureString} object to a String with the aid of the static method \texttt{SecureStringToGlobalAllocUnicode(…)} of the \texttt{Marshal} class, which returns a \texttt{IntPtr} that can be converted in a \texttt{String} with the static method \texttt{PtrToStringUni(…)} of the \texttt{Marshal} class, but doing that simply throws away all the effort made in order to secure the password in memory considering that we are dealing again with a \texttt{String}.\newline
 
-\subsubsection{Handling passwords in database}
-Passwords are, most of the times, stored in a database, we are not interested in specifying which database because what we are about to say is valid for everyone.\newline
-The first thing we want to highlight is: do not store password as plaintext in your database.\newline
+\subsubsection{Handling password in database}
+Passwords are, most of the times, stored in a database; we are not interested in specifying which one because what we are about to say is valid for every system.\newline
+The first thing we want to highlight is: do not store password as plain text in your database.\newline
 If you store password as plaintext in your database, and an attacker steal your data, you are allowing access to your system freely.\\
 
-Suppose that you are dealing with an e-commerce website, if an attacker could access as the user X it is likely it will be allowed to buy items with the credit card of X, or even steal the credit card number.
+Suppose that you are dealing with an e-commerce website, if an attacker could access as the user X it is likely it will be allowed to buy items with the credit card of X, or even steal the credit card number.\\
 This will translate in problem and hassle for the user and an even big problem for you, and we have not even talked about the damage of image for your company, if the affair become of public domain (and it will, sooner or later).\\
 In order to store password in a secure way we need three ingredients:
 \begin{enumerate}
 	\item A cryptographic hash function or a key derivation function.
-	\item A salt generated from secure pseudorandom number generator.
+	\item A salt generated from secure pseudo-random number generator.
 	\item Number of iteration.
 \end{enumerate}
 
@@ -206,40 +206,30 @@ A cryptographic hash function is a special hash function that map data of arbitr
 A key derivation function is a cryptographic function that derive a secret key from a secret value such as a password.\\
 The main difference between the two is that a key derivation function has a randomness property that is absent in a cryptographic hash function.\\
 From now on, we will refer to both with the term hash function in order to make our exposure a bit more clear.\\
-A salt is a sequence of random bit used together with the password as input for the hash function, when we say random we are referring to value generated with secure pseudorandom number generator, the common random number generator provided by all the standard library of programming languages are not appropriate for this kind of task.\\
+A salt is a sequence of random bit used together with the password as input for the hash function, when we say random we are referring to value generated with secure pseudo-random number generator, the common random number generator provided by all the standard library of programming languages are not appropriate for this kind of task.\\
 The number of iteration is simply the number of time a particular hash function is executed in order to produce the output, we will talk about it in details in a few moments.\\
 
-Storing a password as a hash is recommended because if someone steal your database it may be capable of reading the users’ records but he will not be able to login because the password is not a plaintext but an hash.\\
-The login procedure (server side) will take of taking a plaintext password, calculating a hash from it and check if the two hash are equals, then the access to system is granted, otherwise it is not.\\
-In other words, the only way to access to the system with the credential of another is user is to steal them with social engineering’s technique, guessing it with a dictionary attack or cracking it with a brute force attack.\\
+Storing a password as hash is recommended because if someone steal your database, it may be capable of reading the users’ records, on the other hand he will not be able to login because the password is not stored as plain text but as hash.\\
+The login procedure (server side) takes a plain text password, calculates the hash from it and compares it with the one stored in the database; if the two hashes are the same, then the access to system is granted, otherwise it is not.\\
+In other words, the only way to access the system with the credential of another user is to steal them with social engineering’s technique, guessing it with a dictionary attack or cracking it with a brute force attack.\\
 Note that if an attacker has access to the database he can find users with the same password hash, this means that different users have the same password, so stealing the password of user1 means stealing also the password of user2.\\
-If an attacker has steal two different database and he knows that user X is present in both, it is likely that a user use the same password for different services, so if the attacker is able to break one hash (the easiest one) he gains the access even to other system, in this case is not only a fault from the development team but also from the users that reused a password.\\
+If an attacker has stolen a database and crack the password of user X, it could be that the user X use the same password for different services, so if the attacker is able to break one hash he could gain the access even to other system, in this case is not only a fault from the development team but also from the users that used the same password.\\
 There are also brute force attack that are particularly efficient because they work with large pre-computed hash table known as rainbow table; in order to avoid this attack we need to introduce a salt in order to make the use these table useless.
-In order to avoid this kind of attack we are adding a random value know as salt in order to produce a different output every time the hash function is executed with the same password as input.\\
-The salt is a value that must be saved with the hash, otherwise we will not be able to produce again the hash that match the one saved on the database.
-It is not mandatory to maintain the salt secret, it can be saved in the database, or if you want, you can even save it separately.\\
+To avoid this kind of attack we are adding a random value known as salt in order to produce a different output every time the hash function is executed with the same password as input.\\
+The salt is a value that must be saved with the hash, otherwise we will not be able to produce again the hash that match the one saved on the database.\\
+It is not mandatory to maintain the salt secret, it can be saved in the database, or it can be saved separately.\\
 With the aid of salt, we can make useless the use of a rainbow table because the attacker must know the salt, only after that he knows it can start a brute force attack that may takes a lot time if the password is not trivial.\\
 
 It is also important to iterate the hash function a certain number of time in order to slow down the cracking attempt of an attacker.\\
-First of all if the number of iteration is not known, the attacker must try all the password and hash them every time $n$ times where $n$ is the number of iteration he has esteemed, so he must try blindly.\\
+First of all if the number of iteration is not known, the attacker must try all the password and hash them $n$ times, where $n$ is the number of iteration he has esteemed, so he must try blindly.\\
 The number of attempts can be saved on the users’ record without problem, of course if an attacker steal your database he will know the value of $n$, but if all the precaution are applied he basically has no way to try a brute force attack that will takes lot of time.\\
-It is important to design your system in a way that allow to customize the number of iteration during the years, that is because the computational power increases every year, so if a number of iteration m was safe two years ago, it may be insecure now days, if you design your application in a good way you can simply tune up it up from a configuration file, also remember to implement a routine that check if the iteration number of an hash in the database is coherent with the one present in the configuration file, in order to update it and allows the login for the user.\\
+It is important to design your system in a way that allow to customize the number of iteration during the years, that is because the computational power increases every year, so if a number of iteration $m$ was safe two years ago, it may be insecure nowadays, if you design your application in a good way you can simply tune up it up from a configuration file, also remember to implement a routine that check if the iteration number of an hash in the database is coherent with the one present in the configuration file, in order to update it and allow the login to the user.\\
 
-Here an example in pseudo-code of what we have said until now:
-\begin{lstlisting}[language=Java]
-Var username=”user”;
-var password=”password”;
-Var iter=readIterationFromConfigFile();
-var salt=SecureRandomNumberGenerator.generate();
-var hash=hashFunction(password,salt,iter);
-
-insertDataInDB(username,hash,salt,iter);
-\end{lstlisting}
 
 The code that perform the login could be something similar to the following snippet:
 \begin{lstlisting}[language=Java]
 Var username=”user”;
-var password=”password”;
+var password={”p","a","s","s","w","o","r","d”};
 Var iter=readIterationFromConfigFile();
 Var user=getUserFromDB(username);
 if(user==null)return error;
@@ -255,96 +245,102 @@ if(iter!=user.iter){
 return access granted;
 \end{lstlisting}
 
-Until now, we have not talked about what hash function to use, and it is now time to see what are some options available.\\
+Until now we have been generic about which hash function to employ, for this reason here an overview of the most common hash function.
 
 \input{table/011-hash}
 
-\paragraph{MD5} is a hash function producing a 128 bit hash output.\\
+\paragraph{MD5} is a hash function producing a 128 bit output.\\
 It is considered an insecure function because it suffer from extensive vulnerabilities.\\
-Even if it is known to be vulnerable, it remains in use.\\
+Even if the vulnerability is known by some years it remains in use.\\
 The main vulnerability is about collision, generally when a collision is found; the hash function is more secure.\\
-So if you need to choose a hash function for your application, do not choose MD5.\\
+So if you need to choose a hash function for your application, do not choose MD5\cite{md5}.\\
 
 
 \paragraph{SHA} is a family of cryptographic hash function composed by:
 \begin{itemize}
 	\item SHA-0 - It was the first algorithm that produced a 160 bit hash, it was marked as insecure shortly after its publication.
-	\item SHA-1 -It was released shortly after SHA-0, it produce a 160 bit hash, from 2010 it is no more considered secure for cryptographic uses.
+	\item SHA-1 - It was released shortly after SHA-0, it produce a 160 bit hash, from 2010 it is no more considered secure for cryptographic uses.
 	\item SHA-2 - It is a sub-family of hash function, with different block size: 256 and 512.
 	There are also truncated version with block size of 224 and 384.
 	\item SHA-3 -It is a hash function with different block size: 256 and 512, its internal structure is completely different from the rest of the SHA family.
-	We will not consider SHA-0 and SHA-1 as candidate because they are not secure as cryptographic hash function, SHA-1 is still used for other tasks such as MAC.
+	We will not consider SHA-0 and SHA-1 as candidate because they are not secure as cryptographic hash function, SHA-1 is still used for other tasks such as MAC\cite{sha}.
 \end{itemize}
 
+
 \paragraph{Bcrypt} is based on the Blowfish block cipher algorithm and it is a password hashing function.\\
-In order to use this function we need to provide: a password, a salt and the number of iteration.\\
-This function is designed to slow on hardware like GPU, in order to achieve this result, Bcrypt heavily rely on accesses to a table which is altered during the execution of the algorithm, this is fast on a CPU, but in a GPU this translate in a slowdown due to the fact that the memory is shared by all the cores and they compete for the control of the memory bus.\\
-On the other hand Bcrypt is weak to ASIC attack, but it was created in 1999 when ASIC does not exists, so it is possible to implement Bcrypt in ASIC efficiently.\\
+In order to use it we must provide: a password, a salt and the number of iteration.\\
+This function is designed to be slow on hardware like GPU, in order to achieve this result, Bcrypt heavily rely on accesses to a table which is altered during the execution of the algorithm, this is fast on a CPU, but in a GPU this translate in a slowdown due to the fact that the memory is shared by all the cores and they compete for the control of the memory bus.\\
+On the other hand Bcrypt is weak to ASIC attack considering that it is possible to implement Bcrypt in ASIC efficiently\cite{bcrypt}.
+
 
 \paragraph{Scrypt} is a key derivation function designed to make it costly to perform large scale custom hardware attacks by requiring a large amount of memory.\\
 Scrypt can be considered as an evolution of Bcrypt because it is similar to it.\\
 In order to use this function we need to provide: a password, a salt and the number of iteration.\\
 The output produced by this function can be used as a hash and also as a cryptographic key.\\
-Scrypt is considered memory intensive because it creates a lot of pseudo-random number that are used few times during the computation, generating the number is computationally intensive and it makes sense to store them in RAM instead of re-computing them on the fly.\\
+Scrypt is considered memory intensive because it creates a lot of pseudo-random number that are used few times during the computation, generating the number is computationally intensive and it makes sense to store them in RAM instead of re-computing them on the fly\cite{scrypt}.\\
+
 
 \paragraph{PBKDF2} is a key derivation function that applies a pseudo-random function, such as HMAC.
 In order to use this function we need to provide: a password, a salt and the number of iteration.\\
 The output produced by this function can be used as a hash and also as a cryptographic key.\\
-PBKDF2 is strong against brute force attack due to the variable number of iteration and thanks to the salt it is also resistant to rainbow table attack.\\
-PBKDF2 is weak to attack performed with ASIC or GPU, in fact this function need very little RAM, thus brute force attack with these specific tools are relatively cheap and they can provide good performance during a password cracking task.\\
-Therefore, we suggest using Bcrypt or PBKDF2, they are reliable and supported in most cryptographic library.\\
-The standard library for high level languages like Java or C\# offers good support for cryptographic function, on the other hand if you work with low level languages like C or C++ we suggest you to rely on a reliable library.\\
-Here a list of supported hash/key derivation function supported natively for different languages.\\
+PBKDF2 is strong against brute force attack due to the variable number of iteration and thanks to the salt it is also resistant to rainbow table attacks.\\
+PBKDF2 is weak to attacks performed with ASIC or GPU, in fact this function need very little RAM, thus brute force attack with these specific tools are relatively cheap and they can provide good performance during a password cracking task\cite{pbkdf2}.\\
+
+Therefore, I suggest using Bcrypt or PBKDF2, they are reliable and supported in most cryptographic library.\\
+The standard library for high level languages like Java or C\# offers good support for cryptographic function, on the other hand if you work with low level languages like C or C++ I suggest you to rely on a cryptographic library.\\
+
+
+In table \ref{tab:table12} there is a list of natively supported hash/key derivation function for different languages.\\
 
 \input{table/012-hashes-availability}
 
-\subsubsection{Handling passwords embedded in the code}
-Sometimes it is possible to find sensitive data inside a program, think about the last time you wrote a program that has a connection to a database, where did you stored the credential to access it?\\
-Most of the time these credential are hardcoded in the program, sometimes they are stored in plaintext configuration file.\\
-Using an encrypted configuration file is not a good idea because you need to store a key somewhere, and sometime the key is hardcoded in the program so there is no difference with the two previous options.\\
+\subsubsection{Handling password embedded in the code}
+Sometimes it is possible to find sensible data inside a program, think about the last time you wrote an application which connects to a database, where did you stored the credential to access it?\\
+Most of the time these data are hard-coded in the program, sometimes they are stored as plain text in configuration file.\\
+Using an encrypted configuration file is not a good idea because you need to store a key somewhere, and often the key is hard-coded in the program so there is no difference with the two previous options.\\
 
-Also note that hardcoding credential in your code is a bad practice because you will need to compile the application if you change them, another thing to keep in mind is that your code is likely to be saved on versioning system like Git or Subversion, so one of this system is violated an attacker can read your code and steal your credentials.\\
+Also note that hard coding credential in your code is a bad practice because you will need to compile again the application if you change them, another thing to keep in mind is that your code is likely to be saved on versioning system like Git or Subversion, if one of this system is violated, then an attacker can read your code and steal your credentials.\\
 
-We will list down the possible way to store a password or a key in a secure way, from the best to the worst.\\
+We will list the possible way to store passwords or keys in a secure way, from the best to the worst.\\
 \begin{enumerate}
 \item Hardware security module - An HSM is a product designed to store credential, private key and sensitive data in general.
 The main drawback of a HSM is its cost, an entry level HSM may cost you at least 2000€, and then you also need to take care to implement it in your system.
 \item Trusted platform module - A TPM is microprocessor specifically designed to perform cryptographic operations.
 It could be seen as a cheap alternative to a HSM.
-//da finire
-\item Encrypt the sensitive data with the login password of your OS
+\item Encrypt the sensitive data with the login password of your OS.
 This could be a good solution if your OS stores your login password in a secure way and it is possible to access it in order to derive a key that will be used to encrypt the configuration file.
 Windows has API that allow you to perform these kind of tasks.
-\item Store the sensitive data on a different machine
+\item Store the sensible data in a different machine.
 In this case the application does not have the credential available and it must receive them from another machine at runtime, you are moving the problem to another machine because you will need to find a way to store these sensitive data, also note that the communication must be encrypted and that if the remote machine is unreachable the main application is susceptible to denial of service.
-\item Hardcode the sensitive in your code
+\item Hardcode the sensitive in your code.
 This is not a good solution but it can defend you from script kiddies that are not able to analyze your code with an hex editor or a disassembler.
-\item Save the sensitive data in a plaintext configuration file
-You are not even trying.
+\item Save the sensitive data in a plain text configuration file.
+Are you serious?
 \end{enumerate}
 
 Storing credential is not an easy task because you need to take into account: cost, security and ease of implementation.\\
 Cost is very important because it is strictly tied to the security level you want to achieve, using an HSM is surely the best option from a security point of view, but for a small development team its cost may be prohibitive.\\
-So it is necessary to find out a tradeoff that makes possible to achieve good security but also respect the budget, also take into account that some solutions could be an overkill for the environment of your application.\\
+It is necessary to find out a trade off that makes possible to achieve good security but also respect the budget, also take into account that some solutions could be an overkill for the environment of your application.\\
 
-\subsubsection{Handling passwords from the user point of view}
-Most of the time a user password is very simple, from years in the top ten common password the word “password” is the number one.\\
-This story tells us that even if we use a secure system, the weak link is, most of the time, the user.\\
-Enforcing the use of complex password that must contain uppercase, lowercase letter, at least one special character and a number is not a great idea for two reason:
+\subsubsection{Handling password from the user point of view}
+Most of the time a user password is very simple, and “password” is always in the top ten easiest password to crack.\\
+Even if we use a secure system, the weak link is, most of the time, the user.\\
+Enforcing the use of complex password with uppercase, lowercase letter, at least one special character and a number is not a great idea for three reason:
 \begin{enumerate}
 	\item It will be difficult to remember for the user.
 	\item An attacker knows the structure of the password.
+	\item The user will use "Password1!".
 \end{enumerate}
 
-When a password is difficult to remember it is likely that the user will write it down on paper or save it on a plaintext file on his computer.\\
+When a password is difficult to remember it is likely that the user will write it down on paper or save it on a plain text file on his computer.\\
 On other hand if an attacker knows the structure of the password it can focus only on certain combination and having a little speed up during the cracking process.\\
 
-We suggest to avoid mandatory complex password because we think is not a good way to provide security, instead we suggest to use long easy to remember password, in fact the length of a password could save us from a brute force attack quite easily.\\
+I suggest to avoid mandatory complex password because I think is not a good way to provide security, instead I suggest to use long easy to remember password, in fact the length of a password could save us from a brute force attack quite easily.\\
 Do not impose a limit on the maximum length of the password, but impose a minimum length of at least 8 character, even if 8 character are easy to crack.\\
 The following password can be cracked easily with a modest system:
-\texttt{“qv£a/l4p” – 8 character password}.\\
+\texttt{“qv£a/l4p” – 8 characters password}.\\
 In addition, it is difficult to remember, on the other hand a simple password like:
-\texttt{“lion cucumber skateboard snake beer” – 36 character password}.\\
+\texttt{“lion cucumber skateboard snake beer” – 36 characters password}.\\
 Is difficult to crack and easy to remember.
 
 \subsection{Never write your own cryptographic function}
@@ -354,11 +350,67 @@ Of course, a library could be bugged, but behind well-known libraries there are 
 
 Another thing to notice is that you should not create your own cryptographic schema, even if it may seems unbreakable to you, it does not mean it is in reality.\\
 A secure cryptographic scheme is created by expert in cryptography and analyzed by other expert and it could take some years before a scheme is considered secure.\\
-Also take in mind that security through obscurity is not a good idea, even if you create your cryptographic scheme and you take it secret, it does not mean it can be cracked.\\
-And in this case it is appropriate to remember the second Kerckhoffs's principle:
+Also take in mind that security through obscurity is not a good idea, even if you create your cryptographic scheme and you take it secret, it does not mean it can not be cracked.\\
+In this case it is appropriate to remember the second Kerckhoffs's principle:
 A cipher should not require secrecy, and it should not be a problem if it falls into enemy hands.\\
 
 \subsection{Preventing SQL Injection}
+SQL Injection is one of the most famous attack performed over the last 20 years.\newline
+It simply relies on the negligence of programmer that trust user's input, if the input is used to perform
+a query on a DB, the consequences can be devastating.\newline
+
+An example of SQL Injection is the following:
+
+\begin{lstlisting}
+	String query="SELECT * FROM X WHERE Y="+param+";
+	
+	execute(query);
+\end{lstlisting} 
+
+The parameter \texttt{param} is concatenated with the query string without any control, if the content of this variable is, for instance:
+\texttt{'"bobby"; DROP DATABASE db;'} the query will be performed, but another one will be performed too ... and it will drop the database.\newline
+
+Of course, it is also possible to leak data with this kind of technique and it could be done silently without any harm to the DB, so it will be quite difficult to
+find out a data leak in this condition.\newline
+
+In order to avoid this kind of attack, the programmer must check every parameter that is concatenated in the query string in order to be sure that nothing that could harm
+the system is concatenated in the query.\newline
+There are four general case that we must take care:
+\begin{itemize}
+	\item String - a string must be enclosed in quotes and special characters have to be escaped; or the string must be hex-encoded.
+	\item Numbers - a number must contain only digits, a decimal delimiter and a sign.
+	\item Identifiers - an identifiers must be enclosed in backticks and special character have to be escaped.
+	\item Operator and keyword - there is no general rule, they have to be legitimate operators and keywords.
+\end{itemize}
+
+Checking every parameter in a manual way is not a great idea for three reason: it is boring, will bloat your code and it is likely that you forget to check
+some parameters; for these reason we need an automatic way to check the input, another approach that is quite more reliable is based on Prepared Statement,
+a prepared statement is a particular object that allows the execution of certain statement repeatedly with high efficiency.\newline
+A particular feature of prepared statement is that query and parameters are sent to the DB server separately, basically we are sending a program to the server and then its input;
+and we are no more mixing the two things together.\newline
+
+In general, a prepared statement works in this way:
+
+\begin{lstlisting}
+String query="SELECT * FROM X WHERE Y=?";
+
+PreparedStatement ps=new PreparedStatement(query);
+ps.bind(0,"pippo");
+
+execute(ps);
+\end{lstlisting}
+
+The ? is used as placeholder and then a parameter is bind to its place.\\
+
+The general rule is: when dealing with dynamic input data, use a prepared statement and you \emph{should} be safe.\\
+I said \emph{should} because there is one little details that is not always mentioned while talking about prepared statements,
+a prepared statement supports only two kinds of literals: string and number, so identifiers, operator and keyword are left uncover.\cite{phpinj}\\
+There are also cases where a prepared statement is not good at all, for example if the query is dynamic, there is no way to use a prepared statement
+easily, in this case the programmer should implement the feature with particular care.\\
+
+In order to avoid damages to the DB if a SQL injection occurs it is recommended to use permission on tables in order to deny certain dangerous operations
+for the user that executes the query on the DB, this also means that you should design the user's privilege in order to be the lowest as possible.\\ 
+
 
 \subsection{Writing a secure login form}
 Writing a login form is one of the most common task that a developer, sooner or later may face in his career.\\
@@ -397,8 +449,8 @@ bool login(String username,char[] password){
 	User user=getUserFromDB(username);
 	if(user==null){
 		String salt=”use this as salt”;
-		String hash=hashFunction(password,user.salt,iter);
-		return hash==salt;
+		String hash=hashFunction(password,salt,iter);
+		return false;
 	}
 	String hash=hashFunction(password,user.salt,user.iter);
 	if(hash!=user.password)return false;
@@ -417,21 +469,21 @@ A brute force attack could become a DoS if the rate of login attempt is very hig
 An attacker will realistically use an automated tool to perform a DoS attack, the tool will fill the form automatically and perform the request, but you can insert an hidden field, if compiled you can assume that the login attempt was tried by a bot and not by a real user and avoid the allocation of resource to perform the login; this is, of course, a simple trick, if the attacker notice it, he can simply change his tool, but this could stop some script kiddie.\\
 A more sophisticated technique could be adding a certain amount of time delay every time a login attempt fails in order to slow down the attacker.\\
 Locking a certain account is a bad idea because in this way an attacker can lock lots of legitimate user to access a certain service, this could also lead to a damage image for your company and make your user angry.\\
-It may sounds like a good to block a certain account if you are dealing with sensitive data or money, for example it could be reasonable that a bank will lock your account if it notice too much login attempts, but the bank must offer a way to notify you about that and a way to securely unlock your account.\\
+It may sounds like good deal to block a certain account if you are dealing with sensitive data or money, for example it could be reasonable that a bank will lock your account if it notice too much login attempts, but the bank must offer a way to notify you about that and a way to securely unlock your account.\\
 Here in Genoa, there is a famous bank that lock your account after five wrong login attempts, and the only way to unlock the account is to go to bank and talk to an employee that will unlock your account; now suppose that I am abroad, someone lock my account and I need my money for some reason, how am I supposed to unlock it?
 Think twice before implementing a locking mechanism. \\
 
 Also, blocking a specific IP address is not a solution, as you may know the Network Address Translation (NAT) is very common in the Internet, so if you block a specific IP you are not blocking a particular user but a group of user that present themselves with that specific IP.\\
-Another trick is to add a CAPTCHA after a certain amount of login failed, but be sure to add OCR-hard CAPTCHA otherwise an attacker can trick you.\\
+Another trick is to add a CAPTCHA after certain amount of login failed, but be sure to add OCR-hard CAPTCHA otherwise an attacker can trick you.\\
 
 \textbf{Note:} this is more related to the presentation of your login form but when you need to notify the user that the login was not possible, do not specify why, if you specify that the username did not exists or that the password was wrong you are literally helping the attacker, of course for a real user would be more helpful to know if he wrote wrong his username or his password but for security reason we suggest you to be vague as possible and show the following error message: “Wrong username or password”.
 
 \subsection{Handling user privilege}
-In a typical client server scenario, checking if a certain user has the privilege to perform a certain operation is crucial to avoid damage to system and security holes.\\
+In a typical client server scenario, checking if a certain user has the privilege to perform a certain operation is crucial to avoid damage to the system and security flaws.\\
 
-We want to highlight that the control logic must be on the server side of the application, the client side could be corrupted or modified by an attacker in way that allow him to perform operation that are reserved to high privilege user.\\
+I want to highlight that the control logic must be on the server side of the application, the client side could be corrupted or modified by an attacker in way that allow him to perform operation that are reserved to high privilege user.\\
 
-Control logic client side can be implemented but keep in mind its main feature is to provide a good user experience to the final user and to avoid useless request to the server, thus if he try to perform a forbidden operation the application shows an error message, but if an attacker modifies it, it is possible that the error message would not show anymore, but the operation is not performed on the server side.\\
+Control logic client side can be implemented but keep in mind its main feature is to provide a good user experience to the final user and to avoid useless request to the server, thus if he tries to perform a forbidden operation the application shows an error message, but if an attacker modifies it, it is possible that the error message would not show anymore, but the operation is not performed on the server side.\\
 
 Here we will show you an example of wrong handling of user privilege.\\
 \textbf{Note:} we assume that \texttt{performAdminTask(…)} sends a request to the server that triggers the execution of the server side code.
@@ -439,7 +491,7 @@ Here we will show you an example of wrong handling of user privilege.\\
 \begin{lstlisting}
 //client side
 if(role==Admin)
-performAdminTask(username,password);
+	performAdminTask(username,password);
 
 //server side
 eraseDatabase();
@@ -463,7 +515,7 @@ The second example at least check if the user exists but does not check if the u
 Now we will show you another example where the control logic is on the client side, as before we assume that \texttt{performAdminTask(…)} sends a request to the server that triggers the execution of the server side code.\\
 
 In this case the control logic is only on the client side, so the server is blindly accepting every request that the client send because it trust the client, but as just said: never trust the client.\\
-Another example of wrong handling is the following, as before the \texttt{performAdminTask(…)} triggers the execution of server side code.\\
+Another example of wrong handling is the following(as before the \texttt{performAdminTask(…)} triggers the execution of server side code).\\
 
 \begin{lstlisting}
 //client side
@@ -471,11 +523,11 @@ performAdminTask(username,password,role);
 
 //server side
 if(login(username,password) && role==Admin)
-eraseDatabase();
+	eraseDatabase();
 \end{lstlisting}
 
 
-In this case we are near to a correct solution, but we are trusting the client, if the client tells the server the he is an administrator, the server will trust him and perform the action.\\
+In this case we are near to a correct solution, but we are trusting the client, if the client tells the server that he is an administrator, then the server will trust him and perform the action.\\
 This is not good because the server must not be tricked in such an easy way, in order to really trust the role associated to a user we need to rely on a secure source of information, and in this case the source is the server itself.\\
 You must design your application in way that minimize the exchange of sensible data between the client and the server, in order to perform action on the server we just need to send the username and the password (and other parameter if needed), everything else must be on the server.\\
 The correct way to check for user privilege is the following:
@@ -496,4 +548,13 @@ What we have seen at the moment is an approach that could work, but does not res
 This principle states that a user must have only those privileges which are essential to perform its intended function.\\
 Basically, if an administrator is working on a simple text file and it only requires the privilege to edit and save this file, he does not need to have the privilege to perform operation on a database; if in future he will need to perform operation on a database then the privilege shall be granted to him and revoked after the operation has been performed.\\
 The least privilege principle is implemented from several years on UNIX like systems, recreating the same functionality is not an easy task and you should ask yourself if your application really need a privilege system that respect this principle.
+
+\subsection{Use encrypted communication channel}
+In order to minimize the number of attacks you should always use encrypted communication channel, most of the time
+using an encrypted channel will not degrade the performance of your application.\\
+The only boring thing about using secure protocol is the certificate, in order to establish a secure communication you should have
+a certificate provided by a Certificate Authority, for debug purpose you can use a self signed certificate.\\
+
+When performance is the goal and there is no way to introduce encryption without a great loss of performance it could make sense
+to avoid encryption, but be sure that attackers cannot send or receive messages in the network where the unencrypted communication occurs.\\
 

