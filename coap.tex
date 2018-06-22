@@ -15,7 +15,8 @@
 	
 	CoAP can be seen as a lightweight version of HTTP that meet with the technical specification of sensor and embedded machine; as we will see in detail in the following chapter, CoAP and HTTP share some technical details, because CoAP is designed to easily translate to HTTP in order to achieve a simplified integration with the web.\newline
 
-	In order to be a lightweight protocol, CoAP treats data in a very careful way in order to avoid heavy communications, that is why each message has a short fixed length binary header of four byte only. Even if CoAP is light, it has a reliability mechanism that allows the sender to know if the message sent has been received, of course it is not comparable to the one specified by TCP.\newline
+	In order to be a lightweight protocol, CoAP treats data in a very careful way in order to avoid heavy communications, that is why each message has a short fixed length binary header of four byte only. Even if CoAP is light, it has a reliability mechanism that allows the sender to know if the message sent has been received, of course it is not comparable to the one specified by TCP, in fact TCP provides us message in order while COAP does not.
+	TCP has checksum to check whether a message is corrupted or not, CoAP lacks this integrity check .\newline
 	
 	CoAP specifies two types of messages:
 	\begin{itemize}
