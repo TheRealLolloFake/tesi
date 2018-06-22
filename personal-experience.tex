@@ -1,11 +1,16 @@
 
 
-\section{Personal experience in the company}
+\chapter{Conclusion}\label{ch:end}
 
 During my internship at Abo Data I had the opportunity to work on different real world application and I was able to notice some security problem that I fixed.\newline
-In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage Abo Data.
+In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage Abo Data.\\
 
-Application 1 is an IoT application which manages train networks and provide a dashboard that allows the user to control the network; the dashboard is implemented as a web application.\newline
+Application 1 is an IoT application which manages railway networks, at the moment it handles network devices, but in the future it will also support devices like actuators to control the railway.
+The application provides a dashboard that allows the user to control network devices, it is possible to read and edit a configuration;
+the dashboard is implemented as a web application in order to make it available even on mobile devices, that is because the customer need
+to work with this application even on the field.\newline
+The application allows to create new networks, monitor the actual state of the network, check the last alarms (basically notification from the network), perform query on the DB, restoring or exporting the DB and manage users (it is possible to create, delete and update a certain user).\\
+Even if the application is in advanced state of development, from what I have heard, in future there will be lots of new features.\\
 
 Application 2 is another IoT application which deals with fleet of vehicles and their tires, it is a large system developed by Abo Data and another important company, 
 this system allows to track vehicles and monitor their tires status in order to provide data to the end user.\newline
@@ -22,13 +27,14 @@ with only one credentials with the help of a token.\newline
 When I started my internship this sub-system was not ready, for this reason we focused on making it secure by design, this lead us on working a bit more on the analysis of the sub-system before starting with the real implementation in order to avoid security flaws that could be difficult to fix in future.\newline
 
 
-\subsection{Problems detected}
-Application 1 has four important flaws:
+\section{Problems detected in Application 1}
+Application 1 had five important flaws:
 \begin{enumerate}
 	\item It trusted user’s input
 	\item It did not check user’s privilege
 	\item The passwords were stored with symmetric cryptography
 	\item Passwords were handled as String
+	\item It was vulnerable to DoS
 \end{enumerate}
 
 The first flaw allowed a malicious user to log into the system with higher privilege by simply changing a line of code in the JavaScript code on the client side.\newline
@@ -53,7 +59,14 @@ To fix this flaw we replaced the symmetric cryptography algorithm with a key der
 The fourth flaw was another easy one because it required replacing String with array of char, this change was needed in order to minimize the exposure of sensible data and to reduce the success of cold boot attack.\newline
 Fortunately the amount of code was limited, otherwise changing lots of occurrences of String related with sensible data would have been a mess.\\
 
-These four flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some components are strictly related each other.\\
+The fifth flaw allowed a malicious user to perform a denial of service by exploiting a bug which requires the attacker to steal a connection
+token, this was possible because the communication between client and server was not encrypted.\\
+Even if this should suggest you a session hijacking vulnerability, in reality it lead us to a denial of service.\\
+If the attacker has stolen the connection token of another user and he places it in the client side code it is possible
+to perform a denial of service because: the token of the legitimate user is removed from the server, and it is assigned to the malicious user, but 
+the attacker has another token associated, and it is not possible to associate more than one token at the same time; the exception was left unhandled and the system was vulnerable; in order to fix this flaw we handled the exception and avoided the disconnection for the legitimate user.\\
+
+These five flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some components are strictly related each other.\\
 
 The system have a simple mechanism to avoid brute force attack, after three attempts the account under attack is locked and there is no way to access
 until it is unlocked by an administrator.\\
@@ -66,11 +79,24 @@ does not allow execution of inline JavaScript code.\\
 
 The application uses WebSocket to communicate with the server, I have noticed that the \texttt{Origin} header is not used and neither the \texttt{Content-Security-Policy}, I was not able to exploit these little vulnerabilities but it must be considered as a warning that something
 should be fixed.\\
-The communication occurs via an unencrypted channel, this means that a MitM can occurs, I do not know if the deployed version
-uses HTTPS and secure WebSocket or not, I can only states that the debug version does not use them, in fact it is possible to simulate
-a MitM with BurpSuite, a penetration test tool that can act as a proxy to inspect the exchange of messages between two hosts, mostly for debug purposes.\\
+In the Debug version, communications occur via an unencrypted channel, this means that a MitM can occur; on the other hand
+the deployed version uses HTTPS and secure WebSocket; this mean that the fifth flaw was easy to exploit only in the debug version.
 
-\subsection{Analysis of the security aspect and conclusion}
+\section{Design of Application 2}
+As said, for Application 2 we focused more on the design phase in order to avoid security issues, at the beginning the idea was to
+store passwords with symmetric cryptography because there were no alternatives (as we know from the best practices, it is not a good idea to store password with this kind of cryptography), the external systems are not under our control so
+it was not possible to use tools like OAuth.\\
+Fortunately in the back-end of the application there was a function that allowed us to avoid to store the external systems' passwords,
+for this reason our work focused on creating secure token, the tokens used in SSO are signed and an attacker cannot forge a fake one
+if he does not have the key used to sign the token.\\
+The token is generated with the aid of a secure pseudo-random number generator and other data provided by the user, they are mixed in order to
+create an array of byte which will be the argument of the HMAC-SHA1 algorithm.\\
+Unfortunately the key is stored in a plain text configuration file, we discussed how to store it in a secure way but this was the only feasible
+solution; an HSM was not available, and storing the key in another machine was not feasible because it required a certificate in order to
+make secure the communication between the two servers.\\
+
+
+\section{Analysis of the security aspect and conclusion}
 During the internship I noticed that the security aspect during the development of an application is not easy as it could seems.\newline
 From an academic point of view, making a secure application is the main goal, but from a business perspective, the same goal is not so easy to reach because there are other factors that must be kept in mind.\newline
 If you are developing an application by yourself and for yourself, you have no deadline, no customers to meet and no budget limitations.\newline
@@ -163,7 +189,7 @@ Also take in mind that a security testing may not provide you all the vulnerabil
 is important to take care about your software periodically; when you change a part of your application, you should check that changes do not
 introduce flaws.\\
 
-Another aspect of security I did not mentioned in this thesis is privacy, even if they are two distinct concepts they are related because without security there is no privacy, I think it is important to discuss it a bit due to the fact that recently the General Data Protection Regulation (GDPR)
+Another aspect of security I did not mentioned in this thesis is privacy, even if they are two distinct concepts, they are related because without security there is no privacy, I think it is important to discuss it a bit due to the fact that recently the General Data Protection Regulation (GDPR)
 has been approved by the European commission in order to strength the protection of personal data of citizens of the European Union.\\
 This new regulation should allow citizens to have more control over their data and it should also make sure that companies implements secure system
 in order to avoid data breach, considering that there are fines if a company does not notify the supervisory authority within 72 hours after becoming aware of the leak; this is also enforced by Article 25 that requires data protection to be designed into the development of business processes\cite{wikica}.\\

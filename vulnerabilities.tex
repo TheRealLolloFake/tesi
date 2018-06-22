@@ -1,4 +1,4 @@
-	\section{Vulnerabilities and attacks}
+	\chapter{Vulnerabilities and attacks}\label{ch:vuln}
 	In this section we will analyze the vulnerabilities of both CoAP and WebSocket, we will also show some attacks,
 	where possible we will show you the code, but in order to make the document more comfortable to read we will not
 	show the entire code but only the necessary.\newline
@@ -6,7 +6,7 @@
 	For each example we will describe how to configure the environment
 	and list down the required tools.\newline
 	
-	\subsection{Terminology}
+	\section{Terminology}
 	In this short section I will list the most common attacks in order to make the reading more comfortable considering that these terms will be recurrent from now on.\newline
 	
 	A \emph{Denial of Service} (DoS) is a particular attack that tries to make a machine or a resource unavailable, this
@@ -44,13 +44,13 @@
 	reflected and persistent, the first are common and the malicious content is present only on the target browser; otherwise a persistent XSS vulnerability is more difficult to discover but more dangerous because the malicious content is saved on the server and spread around.\\
 	
 	
-	\subsection{CoAP vulnerabilities and attacks}
+	\section{CoAP vulnerabilities and attacks}
 	In an IoT environment, the data sent from a constrained device to a server are, most of the time, the measures taken by a sensor or an array of sensors; the server collects this data, which will be sooner or later processed in some way.\newline
 	In this particular scenario an attacker may have nothing interesting to steal in the communication between a device and the server, but it is important to avoid the forwarding of fake messages from the attacker.\newline
 	Another possible scenario is the opposite of the previous one, the server sends data to devices; this could be the typical scenario of a production line, where the server sends the parameters in order to customize the production, here is quite important to keep secure the parameters in order to avoid industrial espionage that could advantage competitors.\newline
 	The two scenarios described can employee any protocol that suits well your business; if CoAP suits well in a project, it is important to take into account its vulnerabilities and in this section we will analyze them.\newline
 	
-	\subsubsection{Denial of Service}
+	\subsection{Denial of Service}
 	In this section we will analyze possible denial of service attack on both client and server side.
 	
 	\paragraph{DoS on the client}
@@ -96,7 +96,7 @@
 	
 	In a constrained device, a low level language is likely to be used, this means that lots of convenient features likes asynchronous method or callback are not implemented and if you want to use them, you must take care of implementing them by yourself, it must also be taken into account that the resources are limited so a simpler approach on the code may be mandatory, making the infinite while loop, which tries to send the data, the only possible viable way.\newline
 	
-	\paragraph{DoS on the server}
+	\subsection{DoS on the server}
 	Performing a DoS on the server is a bit more easy because the attacker does not need to intercept messages but simply sends lots of messages to the server, but it could be difficult to turn it down because its computational power is higher.\newline
 	
 	We assume that a server has a computational power that is higher than a common desktop computer, so an attacker may not be capable of carrying out a successful DoS alone, it may need one or more machines to perform a distributed denial of server in order to overwhelm the server.\newline
@@ -128,7 +128,7 @@
 	Mixing this idea with the well-known technique used to reduce the effects of DoS on an HTTP server could lead to a system that is resistant to DoS.\newline
 	Of course, if the IoT system is not reachable via Internet, and the HTTP server is resistant to DoS attack, there is no need to add the idea proposed here.\newline
 	
-	\paragraph{UDP flood}
+	\subsection{UDP flood}
 	UDP flood is a special DoS attack which exploits the UDP protocol; when a UDP packet reaches its recipient, then the recipient checks if there is an application listening on a specific port for this particular packet.\newline
 	If an application is listening, then it receives the packet, otherwise an ICMP Destination Unreachable packet is sent back to the sender.\newline
 	
@@ -141,7 +141,7 @@
 	
 	A firewall can avoid or mitigate this attack, simply by blocking unwanted network traffic, however the firewall could fall victim of this attack instead of the host if it is not capable of handling a huge amount of traffic.\newline
 	
-	\subsubsection{Proxy as man in the middle}
+	\subsection{Proxy as man in the middle}
 	A proxy is, from the security point of view, a man in the middle between the client and the server, which could intercepts messages and manipulate them.
 	
 	\begin{figure}
@@ -168,11 +168,11 @@
 	
 	In this case the communication is secure only in one side, but the fact that it is not secure on the other side makes it completely insecure, so an attacker could simply exploit this behavior in order to leak information from the communication if the attacker is capable of intercepting messages.\newline
 	
-	\subsubsection{Cache poisoning}
+	\subsection{Cache poisoning}
 	If an attacker has taken control of a proxy, then it could manipulate its cache by caching a response forever, clients will then receive outdated messages that could lead to wrong behavior.\newline
 	Otherwise if the attacker has found vulnerabilities on the client, and it is possible to trigger them with a particular response, it could cache a special response that may lead to the crash of the constrained device or to unexpected behavior.
 	
-	\subsubsection{Random number generator}
+	\subsection{Random number generator}
 	The CoAP protocol specifies that a token should be generated with the aid of a secure pseudo-random number generator, in order to avoid trivial and predictable token.\newline
 	However, this is not possible in all situations; a secure pseudo-random number generator needs a good source of entropy, but a constrained device may lack this source.\newline
 	
@@ -185,7 +185,7 @@
 	A linear congruential generator can be cracked easily by simply observing its output, as demonstrated \cite{rng}. \newline
 	If a constrained device is known to lack a good source of entropy, it must not be used for process where this entropy is needed, for instance: if a cryptographic key is needed, then it must be generated on another system and then added to the device during the manufacturing phase.
 	
-	\subsubsection{Device and resource discovery}
+	\subsection{Device and resource discovery}
 	CoAP has a device and resource discovery features, they are extremely important in M2M application where, most of the time, the human hand is needed only during the deployment of the system.\newline
 	
 	In order to discover a CoAP server, the client must either know about the resource ahead of time, or support multicast CoAP.\newline
@@ -208,7 +208,7 @@
 	In order to avoid this kind of attack, it can be useful to allow communication only with authenticated server, but of course the convenience of dynamic discovery is lost.\newline
 		
 
-	\subsubsection{Physical attack}
+	\subsection{Physical attack}
 	While dealing with physical attack we assume the following:
 	\begin{itemize}
 		\item The attacker has full access to the constrained devices and in general to the entire network component.
@@ -216,10 +216,10 @@
 		\item The CoAP server and other server machines are in a closed environment, little surveillance is assumed.
 	\end{itemize}
 	
-	\paragraph{Denial of Service}
+	\subsection{Denial of Service}
 	If an attacker has physical access to constrained devices or a main CoAP server, then he can carry out a denial of service in a variety of way.\newline
 	
-	\subparagraph{Jamming}
+	\subsubsection{Jamming}
 	This DoS can be carried out on wired and wireless network and it requires a jammer.\newline
 	A jammer is a device which transmits signals on the same radio frequencies of the target, making the communication impossible by preventing them from receiving and transmitting in the jammer’s operative range.\newline
 	Carry out a DoS on a wired constrained network which uses Ethernet could be difficult with a jammer because you may need very high frequency and it could be costly, but a good alternative could be a powerful magnet placed near the cables.\newline
@@ -233,7 +233,7 @@
 	
 	There is no general countermeasure against jammer, in the case of wired network, shielded cables can be used but for a wireless network there is no way to avoid a jamming DoS, the only way is to find out the source and shut it down.\newline
 	
-	\subparagraph{Destroying the device}
+	\subsubsection{Destroying the device}
 	Another simple DoS could be carried out by destroying the devices in the way you prefer.\newline
 	Of course this approach is not stealth at all; when someone notices the malfunctioning and investigates on the environment, he will find out the smashed devices, while in the case of a jammer it could be difficult to spot the source of the problem.\newline
 	Of course this technique could be applied even on the CoAP server or other machines, but as assumed the server could be in an environment where the attacker more likely to be spotted, so it could be risky.\newline
@@ -242,7 +242,7 @@
 	
 	The easiest way to secure constrained device is to turn the unattended environment into a secure environment in some way, if we are dealing with an open environment, building a fence with barbed wire around the device could be a solution, if the environment is closed then you could place a security camera or restrict the access to the area.\newline
 	
-	\subsubsection{Corrupting a device}
+	\subsection{Corrupting a device}
 	For this attack we assume that the network uses the NoSec mode.\newline
 	If the attacker has physical access to a device, he could corrupt it in order to act as malevolent node by sending spoofed request around the network in order to create congestion in the constrained network.\newline
 	
@@ -259,7 +259,7 @@
 	
 	An attacker could also exchange a device with a malevolent one designed to act as describe before.\newline
 	
-	\subsubsection{Forgery and data stealing}
+	\subsection{Forgery and data stealing}
 	For this kind of attack we mean the forgery of a constrained device in order to steal some data, in this case we are interested in being silent as possible in order to avoid being noticed.\newline
 	
 	If we are only interested in stealing data only once it may be not necessary to forge a device.\newline
@@ -290,11 +290,7 @@
 	On the other hand if the device has a USB port or any other standard I/O port it could be trivial to steal sensible data.
 	
 	
-	\subsubsection{Remote attack}
-	When we talk about remote attack we mean that the attacker has not physical access to devices, these are the most interesting case because it is possible to show real example.
-	
-	
-	\subsection{WebSocket vulnerabilities and attacks}
+	\section{WebSocket vulnerabilities and attacks}
 	In this section I will analyze the vulnerabilities of WebSocket showing example of attack when possible, note that
 	all the examples use an unencrypted communication channel, even if it may seems trivial to use the encrypted channel
 	it is not, there are lots of applications unencrypted and these examples will show you why it is important to use
@@ -302,7 +298,7 @@
 	Note that the attack performed due to lack of client authentication are possible even with SSL.
 	
 	
-	\subsubsection{Lack of client authentication}\label{sssec:lack}
+	\subsection{Lack of client authentication}\label{sssec:lack}
 	WebSocket does not specify any authentication mechanism; this allows the developer to use any suitable method.
 	From a certain point of view this is good because a developer is free to choose the method that suits well his project, on the other hand being so free could lead to flaws in the code.\newline
 	The authentication method employed could be vulnerable or implemented in the wrong way, or even not implemented.\newline
@@ -417,7 +413,7 @@
 		\item A web server that support PHP like Apache; for an easy install on Windows, XAMPP is surely the best option: \url{https://www.apachefriends.org/it/index.html}
 	\end{itemize}
 	
-	\subsubsection{Lack of data validation}
+	\subsection{Lack of data validation}
 	
 	\paragraph{Example 1} The data validation task is not done by WebSocket but by the application itself, this could lead to flaws in the code.\newline
 	The validation should be done on both sides: client and server.\newline
@@ -561,14 +557,14 @@
 	Remember that even if you store data in the \texttt{SessionStorage} you are not safe at all because an attacker could access it.
 	With these two examples is clear how data validation is important and must be performed in order to avoid serious attack.
 	
-	\subsubsection{Insecure sub-protocol}
+	\subsection{Insecure sub-protocol}
 	When a WebSocket connection is being created, a sub-protocol could be negotiated by client and server in order to agree on a common way to communicate each other, basically WebSocket is only used as a means of transport, and the sub-protocol is employed to handle the exchange of message.\newline
 	The sub-protocol responsibilities is leaved to the developer, there could be common sub-protocol already implemented, but usually is something that developer will implement based on his needs.\newline
 	This could lead to vulnerabilities if the sub-protocol is not implemented correctly on both client and server.\newline
 	
 	Basically, these kind of vulnerabilities rely on the misunderstanding of the sub-protocol specification.
 	
-	\subsubsection{Botnet}
+	\subsection{Botnet}
 	If a web application lacks control as we have seen in chapter \ref{sssec:lack} it is possible to create a botnet.\\
 	It is also possible to make it even more dangerous if the web application has a XSS vulnerabilities that
 	allows an attacker to store malevolent code, in this way every time someone access the web application
@@ -592,16 +588,70 @@
 		\label{fig:ws-vuln0}
 	\end{figure}
 	
-	\subsubsection{Denial of Service}
+	\subsection{Denial of Service}
 	There are various implementation of server side WebSocket and we will see which one is vulnerable and which is not.\\
 	These are the implementations taken under examination:
 	\begin{itemize}
+		\item Java  - \url{https://github.com/TooTallNate/Java-WebSocket}
 		\item Node.js - \url{https://www.npmjs.com/package/websocket}
-		\item Java \url{https://github.com/TooTallNate/Java-WebSocket}
-		\item C\# \url{https://github.com/statianzo/Fleck}
 	\end{itemize}
 
-	\subsubsection{Countermeasures}
+	Our setup to simulate a DoS is the following: one server, one client which performs the attack, another client which test the availability of the service.\\
+	The server machine has the following technical specifications:
+	\begin{itemize}
+		\item OS: Windows 10 Pro 64-bit
+		\item Processor: Intel Core i5 3230M 2.60Ghz (2 Core, 4 Thread)
+		\item Memory: 4GB RAM DDR3 798Mhz
+		\item Network adapter: Broadcom 802.11n Network Adapter - IEEE 802.11 a/b/g/n
+	\end{itemize}
+
+	While the attacker machine:
+	\begin{itemize}
+		\item OS: Windows 10 Pro 64-bit
+		\item Processor: Intel Core i5 3570K 3.40Ghz (4 Core, 4 Thread)
+		\item Memory: 8GB RAM DDR3 666Mhz
+		\item Network adapter: Linksys RangePlus Wireless USB Network Adapter - IEEE 802.11 b/g
+	\end{itemize}
+
+	The technical specifications of the legitimate client are not important because it just need to send one message to the server.\\
+	As you might have notice, the server machine has less power compared to the attacker, this choice has been made in order to simulate a DDoS;
+	the attacker is, more or less, two times powerful.\\
+	Also note that the network adapter used are not top notch, this means that the DoS attack is more easy to carry out due to the low bandwidth.\\
+
+	The \emph{first test} is about the Java library.
+
+	For this test we use three program:
+	\begin{itemize}
+		\item \texttt{javaAtt.jar} - tries to perform a DoS by starting four threads, each one opens lots of connections.
+		\item \texttt{javaServer.jar} - create a server that simply sends back messages.
+		\item \texttt{testClient.jar} - opens a connection and sends a message to the server. 
+	\end{itemize}
+
+	When the server is not under attack the response time is about 47ms, while the server is under attack the legitimate client is not even able to
+	establish a connection; the attack was successful but we were not able to crash the application.\\
+	The service was made unavailable with just 58 connections.\\
+
+	To start the program use the following command in a shell:
+	\begin{lstlisting}
+		java -jar javaServer.jar <ip>
+		java -XmX8G -jar javaAtt.jar ws://<server-ip>:8080
+		java -jar testClient.jar ws://<server-ip>:8080
+	\end{lstlisting}
+
+	Just for curiosity we tried to switch the server and the attacker and the results were interesting. When the connection counter reached 1098
+	the legitimate client was able to open a new connection and receive a response, but with 42391ms of latency.\\
+	The maxinum amount of connections was 2177, the server was still able to send a message back to the client but with a very high latency.\\
+	Even if we were not able to avoid the legitimate client to establish a new connection the latency was too high, a real application
+	will not work properly with a latency like that. We can consider it a success.\\
+
+	The \emph{second test} is about the Node.js library, we used again \texttt{javaAtt.jar} to carry out the attack, while on the server we used \texttt{server.js}.\\
+	When the server was under attack the legitimate client was not able to establish a new connection, the server reached a maxinum of 1070 connections 
+	but we were unable to crash it.\\
+	These results should highlight that the Java library is not very efficient because it was overwhelmed with just 58 connections.\\
+	We also noted that this library sometimes drops some connections in order to make room for new ones.\\
+	
+
+	\subsection{Countermeasures}
 	In order to make WebSocket more secure there are some precautions we must take into account: first of all the usage of \texttt{wss} instead of \texttt{ws}, if the
 	communication is encrypted via SSL nobody is able to read or change the communication, of course attacks are still possible due to flaws in the SSL library or misconfiguration;
 	also take in mind that the communication channel is persistent, so the overhead introduced by SSL is heavy only at the beginning and it become negligible\cite{koch2013websockets}.\\

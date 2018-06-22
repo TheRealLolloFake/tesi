@@ -1,4 +1,4 @@
-\section{WebSocket}
+\chapter{WebSocket}\label{ch:ws}
 In this section we will analyze WebSocket and its main features, in order to make the reading more comfortable,
 we will skip some technical details that are not crucial to the understanding of basic concept of the protocol as for CoAP.\newline
 In case you find yourself interested by WebSocket and you want to examine all the details you can consult the RFC 6455 defined by IETF\cite{rfcws}. \newline
@@ -24,7 +24,7 @@ The WebSocket protocol is designed to be nothing more than a layer on top of TCP
 	\item Closing handshake designed to work in presence of proxies and other intermediaries.
 \end{itemize}
 
-\subsection{Opening handshake}
+\section{Opening handshake}
 In order to establish a WebSocket connection, a client must provide a valid URI, then it opens a connection and sends the handshake.\newline
 If the client has another WebSocket connection to a host, then the client must wait until that connection has been established or for that connection to have failed.\newline
 It is not possible to have more than one connection in the \texttt{CONNECTING} state, if multiple connections are needed,
@@ -69,7 +69,7 @@ When the handshake is complete and is successful the data transfer starts, each 
 
 \textbf{Note:} the \texttt{Sec-WebSocket-Protocol} header can be used to specify a sub-protocol that the client can accept, in this case we are talking about an application level protocol and not one that lives in the TCP/IP stack; this header allows the server to provide the service in a suitable way for the client.
 
-\subsection{Data framing}
+\section{Data framing}
 \begin{bytefield}[bitwidth=1.1em]{32}
 	\bitheader{0-31} \\
 	\begin{rightwordgroup}{WebSocket Frame}
@@ -161,7 +161,7 @@ There are only two data frames:
 	\item Binary arbitrary data, it must be interpreted at the application layer.
 \end{enumerate}
 
-\subsection{Sending and receiving data}
+\section{Sending and receiving data}
 After the establishment of a connection it is possible to send and receive data; in order to send data an endpoint must perform the following steps:
 \begin{itemize}
 	\item It must check that the WebSocket connection state is OPEN, if the state changes, then the endpoint must not send any data.
@@ -178,7 +178,7 @@ if the endpoint parses a control frame, the endpoint must handle it as defined b
 If a frame is part of a fragmented message, then the Application data of the subsequent data frames is concatenated in order to form the data.\newline
 When the last fragment is received, it is indicated by the frame-fin, then a message is received.\newline
 
-\subsection{Closing handshake}
+\section{Closing handshake}
 To close the connection properly there is also a closing handshake procedure: the client or
 the server can send a control frame with a specified control sequence in order to begin the closing procedure.\newline
 
@@ -186,12 +186,12 @@ The closing handshake can be initiated by both simultaneously without any proble
 the client sends the control frame and the server sends back a Close frame as response, as said the opposite works fine.\newline
 After sending the control frame that will end the connection, the peer does not send any other data over the channel.
 
-\subsection{Origin security model}
+\section{Origin security model}
 In order to avoid attack, the WebSocket protocol employees the origin security model used by web browser in order
 to specify which pages are allowed to create a connection to a WebSocket server when the protocol is used from a web page.\newline
 Of course if the protocol is used from a different client the origin model is not useful at all because the client can provide any origin string.
 
-\subsection{URI}
+\section{URI}
 WebSocket defines two URIs: ws is the standard WebSocket while wss is WebSocket Secure which is the basic protocol with a layer of encryption.\newline
 The two URIs are defined as follow:\newline
 
@@ -206,7 +206,7 @@ The port can be omitted if the default values is used, otherwise it must be spec
 The path contains data, usually organized in hierarchical form, used to identify a particular resources.\newline
 At the end, the query component contains a set of data divided by the question mark, it is used to provide extra content with the request.\newline
 
-\subsection{Security perspective}
+\section{Security perspective}
 Even if the WebSocket protocol is designed to be used inside a web browser, this does not mean it will always be used inside a browser, in fact an attacker could send a forged request by a different client.\newline
 The server must not trust the input received from a client, it always must check the input in order to avoid possible attack.\newline
 
@@ -214,7 +214,8 @@ If a server is not intended to process input from any web page but from certain 
 Of course if an attack sends a request to the server with the proper Origin header, then the server will accept it, this header was designed to
 avoid fake WebSocket connection inside a browser environment, not from a non-browser client.\newline
 
-\subsection{Implementation} 
-Nowadays every mainstream browser supports WebSocket; of course the server must support it in order to make the web application work.\newline
+\section{Implementation} 
+Nowadays every mainstream browser supports WebSocket; of course the server must support it in order to make the web application available.\newline
 The protocol, on server side, is implemented as a stand-alone library or even as modular component for standard web server.\newline
-A little search on GitHub can lead us to library for every important programming languages.
+A research on GitHub can lead us to libraries for every important programming languages; at the following link there is a list of 
+available implementations: \url{https://github.com/facundofarias/awesome-websockets} .
