@@ -2,57 +2,57 @@
 
 \chapter{Conclusion}\label{ch:end}
 
-In this last chapter, we discuss, again, the two protocols: CoAP and WebSocket, in order to express a conclusive judgment; then we discuss the experience I had during my internship, which applications I worked on, which problems I noticed, how I fixed them and how I think we can improve the software development process from the security point of view.
+In this last chapter, we recap our impressions on CoAP and WebSocket, in order to draw some conclusions; then, I describe my experience during the internship, which applications I worked on, which problems I noticed, how I fixed them and how I think we can improve the software development process from the security point of view.
 
 \section{Considerations on the protocols}
 
-Even if CoAP, at the moment, is not used in real world application, we think it could be a good choice for lots of IoT applications. The fact it is lightweight and connectionless makes it perfect for scenario where the devices send data at
-regular interval, in this scenario establishing a connection would be costly and useless because it will be closed after the data forwarding occurs; on the other mantaining a long lasting connection would drain the battery life of our devices.\\
-The fact that CoAP translate easily to HTTP is surely valuable; web services are quite common in the IoT world and having
+Even if CoAP, at the moment, is not used in real world applications, we think it could be a good choice for a lots of IoT applications. The fact it is lightweight and connectionless makes it perfect for scenarios where the devices send data at
+regular intervals. In these scenarios establishing a connection would be costly and useless, because it would be closed immediately after the data forwarding; on the other hand, mantaining a long lasting connection would drain the battery life of our devices.\\
+The fact that CoAP easily translate to HTTP is surely valuable; web services are quite common in the IoT world and having
 an easy way to interact with another protocol can speed up the development process.\\
 The major drawback of CoAP is the fact that messages could be delivered out of order, but it can be bypassed by adding a 
 timestamp to each message.\\
 Due to the fact we are dealing with constrained devices, it is important to highlight that it is not obvious that every device
-supports CoAP and its four security modes, a device may support one or two; this drawback is not strictly related to the protocol itself, but we think finding a good trade-off on the computational power of the device is crucial in order to support CoAP and keep costs low.\\
+supports CoAP and its four security modes; for instance, a device might support just one or two modes. This drawback is not strictly related to the protocol itself, but we think that finding a good trade-off on the computational power of the device is crucial in order to support CoAP and keep the costs low.\\
 
-Talking about WebSocket, it is quite common and its usage is very simple due to the API exposed by browsers, which is intuitive to use.
-It is easy to use, but at the same time, it is easy to be used in a wrong way that could introduce flaws in an application.
-Enforcing data validation should be always suggested in tutorial and reference manual, but at the moment the documentation
-around the Web does not cover the security aspects properly.\\
-The only document that clearly enforce data validation is the RFC, but due to its technicality, it is not likely that
-a developer which only uses the protocol (and does not implement it) will read it.\\
+WebSocket is quite common and its usage is very simple, due to the API exposed by browsers, which is intuitive.
+While it is easy to use, at the same time it is also easy to misuse, and that could introduce flaws in an application.
+Enforcing data validation should be always suggested in tutorials and reference manuals but, at the moment, most documentation found in
+the Web does not cover the security aspects properly.\\
+The only document that clearly enforces data validation is the RFC, but due to its technicality, it is not likely that
+a developer, who only uses the protocol (and does not implement it), will read it.\\
 Another thing we have noticed that there is no WebSocket server library that stands out from the others, basically there is
-no de facto standard or a library that everyone suggests to use.\\
-From the client side point of view the problem is the same, but if you use WebSocket as expected you can use the embedded
-protocol by the browser vendors and bypass the problem.
+not a de facto standard or library that everyone suggests to use.\\
+From the client side point of view the problem is the same, but if you use WebSocket as expected, you can use the embedded
+protocol implemented by the browser vendors to bypass the problem.
 
 
 
 \section{Internship}
 
 During my internship at Abo Data I had the opportunity to work on different real world applications and I found some security problems that I fixed.\newline
-In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage Abo Data.\\
+In this section, I will not refer the applications with specific names in order to avoid disclosure of information that could damage Abo Data or its customers.\\
 
-Application 1 is an IoT application, which manages railway networks. At the moment it handles network devices, but in future it will also support devices like actuators to control the railway.
+Application 1 is an IoT application, which manages railway networks. It currently handles network devices, but in the future it will also support devices like actuators to control the railway.
 The application provides a dashboard that allows the user to control network devices: it is possible to read and edit a configuration.
-The dashboard is implemented as a web application in order to make it available even on mobile devices, because the customer needs
+The dashboard is implemented as a web application, in order to make it available even on mobile devices, because the customer needs
 to work with this application even on the field.\newline
 The application allows to create new networks, to monitor the actual state of the network, to check the last alarms (basically notifications from the network), perform query on the DB, restoring or exporting the DB and managing users (it is possible to create, delete and update a certain user).\\
 Even if the application is in advanced state of development, from what I have heard, in future there will be added lots of new features.\\
 
-Application 2 is another IoT application, which deals with fleet of vehicles and their tires. It is a large system developed by Abo Data and another important company, 
-this system allows to track vehicles and monitor their tires status in order to provide data to the end user.\newline
-The telemetry gathered from a vehicles includes: speed, location, engine parameter, G-force experience during cornering, braking and acceleration.\newline
+Application 2 is another IoT application, which deals with fleet of vehicles and their tires. It is a large system developed by Abo Data and another important company.
+This system allows to track vehicles and monitor their tires status, in order to provide data to the end user.\newline
+The telemetry gathered from a vehicle includes: speed, location, engine parameters, G-force experience during cornering, braking and acceleration.\newline
 This kind of information can be used to track the status of a vehicle, in order to verify if everything is working well and to avoid unwanted faults.\newline
-All data is collected and stored on clouds and databases, in this way an user can review the data in order to take decisions; usually to reduce fuel consumption.\newline
+All data is collected and stored on clouds and databases, in this way an user can review the data to make decisions; usually to reduce fuel consumption.\newline
 This data can be used for a lot of different tasks: the end user can track his fleet of vehicles and monitor if everything is right, while the tire company can verify that the produced tires comply with the standard.\newline
 This also allows us to talk about maintenance of vehicles and tires from a different point of view: from a time based
-approach, where the vehicle and its tires are controlled every X year, to a predictive based approach where the maintainer acts on the vehicle when the elaborated data allows him to predict a fault or imminent failure.\newline
-The system works in this way: there are sensors placed on the vehicle, each sensor communicates (wireless) with a central control unit that collects it, via a wireless channel, to a remote server for processing.\\
+approach, where the vehicle and its tires are controlled every $X$ year, to a predictive based approach where the maintainer acts on the vehicle when the elaborated data allows him to predict a fault or imminent failure.\newline
+The system works in this way: there are sensors placed on the vehicle, each sensor communicates (wireless) with a central control unit that collects their data, which is sent via a wireless channel to a remote server for processing.\\
 
-I worked on a sub-system known as Single Sign On (SSO). This sub-system allows users to log into more than one system
-with only one set of credentials with the help of a token.\newline
-When I started my internship this sub-system was not ready, for this reason we focused on making it secure by design, this led us on working a bit more on the analysis of the sub-system before starting with the real implementation in order to avoid security flaws that could be difficult to fix in future.\newline
+I worked on a sub-system known as Single Sign On (SSO). This sub-system allows users to log into more than one system,
+with only one set of credentials, with the help of a token.\newline
+When I started my internship this sub-system was not ready, for this reason we focused on making it secure by design; this led us on working a bit more on the analysis of the sub-system, before starting with the real implementation in order to avoid the presence of security flaws that could be difficult to fix in future.\newline
 
 
 \section{Problems detected in Application 1}
@@ -66,17 +66,17 @@ Application 1 had five important flaws:
 \end{enumerate}
 
 The first flaw allowed a malicious user to log into the system with higher privilege by simply changing a line of code in the JavaScript code on the client side.\newline
-The system was designed in this way: the client sent username, password and the privilege level to the server, at the beginning the privilege level is set to 0, but if the login is successful it is updated with the real level of the user.\newline
-The user’s privilege level was needed on the client side in order to choose which options to show to the user, based on his actual privileges, so the application did not show to the user all the features, but they were available for use even if hidden.\newline
+The system was designed in this way: the client sent username, password and the privilege level to the server. At the beginning the privilege level was set to 0, but if the login was successful it would replace it with the real privilege level of the user.\newline
+The user's privilege level was needed on the client side in order to choose which options to show to the user, based on his actual privileges, so the application did not show all the features to every user, but they were available for use even if hidden.\newline
 Of course, by setting the privilege level to the maximum, it was possible to access all the features of the application without restriction.\newline
-All the functionalities, reserved to high privilege users were available to all because on the server there was no check.\newline
-Checks were on the client side, but by simply changing a line of code it was possible to bypass them, and the server trusted the input because it assumed the client was not corrupt.\newline
-In order to fix this flaw the login method on the server was modified in order to use the data from the DB instead of the one provided by the client.\newline
+All the functionalities, reserved to high privilege users, were available to everyone because on the server there was no check.\newline
+Checks were on the client side, but by simply changing a line of code it was possible to bypass them, and the server trusted the input because it assumed that the client was not corrupt.\newline
+In order to fix this flaw, the login method on the server was modified to load the data from the DB instead of trusting the one provided by the client.\newline
 
-The second flaw is strictly related with the first one, as the server trusted the client, it did not check if the user has the right privilege to perform a certain action.\newline
-Basically, the server received a request and performed it without any check about the user who sent it.\newline
+The second flaw is strictly related with the first one: since the server trusted the client, it did not check if the user had enough privilege to perform certain actions.\newline
+Basically, the server received a request and performed it without checking who sent it.\newline
 In order to fix this flaw it was necessary to add checking on top of each method that performed an action requiring a certain privilege.\newline
-One side effect of this problem forced us to re-design the token management of the application, because during the login the user was associated with the privilege level sent by the client, so adding the check was not enough, in fact if a malicious user logged into the system with an high privilege level, the server would have trusted him and would have associated a token with his fake privilege level.\newline
+One side effect of this problem forced us to re-design the token management of the application because, during the login, the user was associated with the privilege level sent by the client, so adding the check was not enough. In fact if a malicious user logged into the system with an high privilege level, the server would have trusted him and would have associated a token with his fake privilege level.\newline
 In order to make it work properly it was necessary to associate the privilege level saved in the database.\newline
 
 The third flaw was the easiest to fix because it required changes only in one part of the code.\newline
@@ -84,15 +84,15 @@ The passwords were saved on the DB with the aid of symmetric cryptography; the e
 Saving passwords in this way is not secure because symmetric cryptography is, by design, reversible; a password must be stored in a DB with the aid of a one way function, like a hash function or a key derivation function.\newline
 To fix this flaw we replaced the symmetric cryptography algorithm with a key derivation function, the DB required some change in order to store the number of iteration and the salt.\newline
 
-The fourth flaw was easy to fix because it required replacing String with array of char, this change was needed in order to minimize the exposure of sensitive data and to reduce the success of cold boot attacks.\newline
-Fortunately the amount of code was limited, otherwise changing lots of occurrences would have been a mess.\\
+The fourth flaw was easy to fix because it required replacing String with array of chars; this change was needed in order to minimize the exposure of sensitive data and to reduce the success of cold boot attacks.\newline
+Fortunately, the amount of code was limited, otherwise changing lots of occurrences would have been a mess.\\
 
-The fifth flaw allowed a malicious user to perform a denial of service by exploiting a bug, which requires the attacker to steal a connection
+The fifth flaw allowed a malicious user to perform a denial of service by exploiting a bug, which required the attacker to steal a connection
 token. This was possible because the communication between client and server was not encrypted.\\
 Even if this should suggest a session hijacking vulnerability, in reality it led us to a denial of service.\\
-If the attacker stole the connection token of another user, and he placed it in the client side code it is possible
-to perform a denial of service: the token of the legitimate user is removed from the server, and it is assigned to the malicious user, but 
-the attacker has another token associated, and it is not possible to associate more than one token at the same time; the exception was left unhandled and the system was vulnerable; in order to fix this flaw we handled the exception and avoided the disconnection for the legitimate user.\\
+If the attacker stole the connection token of another user, and placed it in the client side code, it was possible
+to perform a denial of service attack: the token of the legitimate user was removed from the server, and assigned to the malicious user.
+Since the attacker had another associated token, and it is not possible to associate more than one token at the same time, the exception was left unhandled and the system was vulnerable; in order to fix this flaw we handled the exception and avoided the disconnection for the legitimate user.\\
 
 These five flaws showed us that sometimes adding security to an application may be easy, but at the same time very difficult if some components are strictly related each other.\\
 
@@ -101,55 +101,55 @@ until it is unlocked by an administrator.\\
 From a point of view this seems like a reasonable solution, but take in mind that an attacker could try to lock all the accounts in order to carry out
 a DoS (as counter measure there is a special administrator account that can not be locked).\\
 Talking about XSS vulnerabilities, it seems like the system is not vulnerable and this is good. The application runs Angular, which is a
-framework to develop single page web applications. Even if I do not really like it because I think it is overly verbose and often makes simple tasks more complicated due to its imposition, it provides a dual-way data binding that takes care of preventing XSS vulnerabilities.\\
-I tried several times to inject code in order to discover vulnerabilities, but Angular always avoided my injections, that is because Angular
+framework to develop single page web applications. Even if I do not really like it, because I think it is overly verbose and often makes simple tasks more complicated due to its impositions, it provides a dual-way data binding that takes care of preventing XSS vulnerabilities.\\
+I tried several times to inject code, in order to discover vulnerabilities, but Angular always avoided my injections, since Angular
 does not allow execution of inline JavaScript code.\\
 
 The application uses WebSocket to communicate with the server, I have noticed that the \texttt{Origin} header is not used and neither the \texttt{Content-Security-Policy}. I was not able to exploit these little vulnerabilities, but it must be considered as a warning that something
 should be fixed.\\
-In the Debug version, communications occur via an unencrypted channel, this means that a MitM can occur; on the other hand,
+In the debug version, communications occur via an unencrypted channel, this means that a MitM can occur; on the other hand,
 the deployed version uses HTTPS and secure WebSocket; this mean that the fifth flaw was easy to exploit only in the debug version.
 
 \section{Design of Application 2}
-As said, for Application 2 we focused more on the design phase in order to avoid security issues, at the beginning the idea was to
+As said, for Application 2 we focused more on the design phase: at the beginning the idea was to
 store passwords with symmetric cryptography because there were no alternatives (as we know from the best practices, it is not a good idea to store password with this kind of cryptography), the external systems are not under our control so
 it was not possible to use tools like OAuth.\\
 Fortunately in the back-end of the application there was a function that allowed us to avoid to store the external systems' passwords,
 for this reason our work focused on creating secure tokens, the tokens used in SSO are signed and an attacker cannot forge a fake one
-if he does not have the key used to sign.\\
-The token is generated with the aid of a secure pseudo-random number generator and other data provided by the user, they are mixed in order to
+without knowing the signing key.\\
+The token is generated with the aid of a secure pseudo-random number generator and other data provided by the user: they are mixed in order to
 create an array of bytes which will be the argument of the HMAC-SHA1 algorithm.\\
 Unfortunately the key is stored in a plain text configuration file, we discussed how to store it in a secure way but this was the only feasible
 solution; an HSM was not available, and storing the key in another machine was not feasible because it required a certificate in order to
-make secure the communication between the two servers.\\
+secure the communication between the two servers.\\
 
 
 \section{Analysis of the security aspect and conclusion}
-During the internship I noticed that the security aspects during the development of an application are not as easy as it could seem.\newline
-From an academic point of view, making a secure application is the main goal, but from a business perspective, the same goal is not so easy to reach because there are other factors that must be kept in mind.\newline
+During the internship I noticed that the security aspects, during the development of an application, are not as easy to meet as it may seem.\newline
+From an academic point of view, making a secure application is the main goal, but from a business perspective, such a goal is not so easy to reach because there are other factors that must be kept in mind.\newline
 If you are developing an application by yourself and for yourself, you have no deadlines, no customers to meet and no budget limitations.\newline
-On the other hand, if you are in a company, you are developing an application for a customer you must take care of:
+On the other hand, if you are working in a company, you are developing an application for a customer and you must take care of the:
 \begin{itemize}
 	\item Relationship with him
 	\item Deadlines
 	\item Support for the application after the release
 \end{itemize}
 
-In order to maintain a solid relationship with your costumer, deadlines must be respected, and here the development of the application comes to play; including security in the development of an application may seems easy at the beginning, but it is not so simple as it may seems and it may cost lots of time, and when there is a deadline the goal is to finish the job, no matter if the application is secure or not.\newline
+In order to maintain a solid relationship with your costumer, deadlines must be respected, and here the development of the application comes to play; including security in the development of an application may seems easy at the beginning, but it is not so simple and it may cost a lot sometime. When there is a deadline, the goal is to finish the job no matter what.\newline
 This is one reason why some developers simply avoid security aspects during the development of an application.\newline
 
 Another reason is about money: some customers are not interested or not even aware about security issues that an application could have, so they are simply not interested in paying for it, but when a security problem occurs they will surely come yelling at you.\newline
 In this case, I think that if you could add security to an application and the time spent is equal to the time spent in making the same thing in an insecure way, then I suggest you to go for the secure way.\newline
 Of course if something requires lots of time, talk about it with the customer and convince him to pay for the additional security features.\newline
-Usually, when company A sells an application to company B, company A provides technical support for a certain period of time, it means that company A must adjust the software if something is not working properly, and it should provide updates.
+Usually, when company A sells an application to company B, company A provides technical support for a certain period of time; this means that company A must adjust the software if something is not working properly, and it should provide updates.
 If there is no time to add a certain feature on the first release, it could be added later with an update.\newline
 
 During the development of software, it is common that the development team adopts certain software development process; Abo Data adopted an agile software development process.\newline
 From what I have noticed it is the right choice because the application requirements are changing frequently, but from the security point of view I think it is a bit problematic and could lead to flaws in the code.\newline
-The security part on an application should be defined in way that allows the development team to edit it at least as possible.\newline
+The security part on an application should be defined in a way that allows the development team to edit it at least as possible.\newline
 
 The security part should also be developed with particular care in order to be easily updated in the future; suppose that the hashing algorithm employed in your application becomes insecure for some reasons, then you should update your application, but of course an update has a cost and requires a certain amount of time in order to be completed. If the code is monolithic it will be difficult and expensive to update, on the other hand if the code is modular it will be simpler.\newline
-Another thing to take in mind is that in the IoT world we also deal with constrained devices, if for some reason you need to change the algorithm for a new one you should check if your constrained devices are capable of handling the new algorithm, otherwise you should stick with the old algorithm or use more powerful devices. Of course, you have to find a trade-off.\newline
+Another thing to take in mind is that in the IoT world we also deal with constrained devices, if for some reason you need to change the algorithm to a new one, then you should check if your constrained devices are capable of handling the new algorithm, otherwise you should stick with the old algorithm or use more powerful devices. Of course, you have to find a trade-off.\newline
 From my experience I noticed that implementing a security feature or fixing security flaws is difficult in software that is in an advanced stage of development, it may require substantial changes to the whole project, and this could slow down the development and it could be difficult to meet the deadline.\newline
 Basically, security should be part of the application since the requirements phase, or big problems will emerge later on.\newline
 
@@ -199,7 +199,7 @@ About security testing there is a lot to say because it covers different activit
 	known vulnerabilities in the application.
 	\item Penetration test - it is a simulation of an attack, it tries to exploit flaws in the application like a real attacker would.
 	\item Security Review - verifies if security standards have been applied to the system; it is
-	done via analysis of code and different version of the program.
+	done via analysis of code and different versions of the program.
 \end{itemize}
 
 
@@ -209,23 +209,23 @@ Due to the fact that each application is different, the security testing techniq
 to be as accurate as possible; for instance if you are testing a web application client side, it is not likely you will find a buffer overflow, but 
 an XSS is more likely.\\
 
-Of course, security testing is quite more difficult compared to standard testing (that is, by itself a difficult task), for this reason companies prefer to avoid it or pay third parties that are specialized in this particular activity.\\
-Also take in mind that security testing may not provide you all the vulnerabilities in your system, but only a certain amount; for this reason it
+Of course, security testing is quite more difficult compared to standard testing (that is, by itself, a difficult task), for this reason companies prefer to avoid it or pay third parties that are specialized in this particular activity.\\
+Take also in mind that security testing may not provide you all the vulnerabilities in your system, but only a certain amount; for this reason it
 is important to take care about your software periodically; when you change a part of your application, you should check that changes do not
 introduce flaws.\\
 
-Another aspect of security We did not mention in this thesis is privacy, even if security and privacy are two distinct concepts, they are related because without security there is no privacy, I think it is important to discuss it a bit due to the fact that recently the General Data Protection Regulation (GDPR)
-has been approved by the European commission, in order to strength the protection of personal data of citizens of the European Union.\\
+Another aspect of security, we did not mention in this thesis, is privacy; even if security and privacy are two distinct concepts, they are related because without security there is no privacy, I think it is important to discuss it a bit due to the fact that the General Data Protection Regulation (GDPR)
+has been recently approved by the European commission, in order to strength the protection of personal data of citizens of the European Union.\\
 This new regulation should allow citizens to have more control over their data and it should also make sure that companies implement secure system
-in order to avoid data breach, considering that there are fines if a company does not notify the supervisory authority within 72 hours after becoming aware of the leak; this is also enforced by Article 25 that requires data protection to be designed into the development of business processes~\cite{wikica}.\\
-The GDPR also take into consideration the trade of data between companies, an hot topic due to recent events~\cite{ca}.\\
+in order to avoid data breaches, considering that there are fines if a company does not notify the supervisory authority within 72 hours after becoming aware of the leak; this is also enforced by Article 25 that requires data protection to be designed into the development of business processes~\cite{wikica}.\\
+The GDPR takes also into consideration the trade of data between companies, an hot topic due to recent events~\cite{ca}.\\
 
 
-We would like to highlight that even documentation and refactoring are important while dealing with security; most of the time documentation is neglected because it takes lot of time and is not paid by the customer, working on a big project for long time
-requires good documentation in order to understand the purpose of certain code in order to avoid the introduction of flaws.\\
+We would like to highlight that even documentation and refactoring are important while dealing with security; most of the time documentation is neglected because it takes lot of time and is not paid by the customer. Working on a big project for long time
+requires good documentation to understand the purpose of certain code and avoid the introduction of flaws.\\
 Talking about refactoring, it is extremely important because it reduces the amount of lines of code and
-avoids absurd copy and paste of code; suppose that a particular piece of code is vulnerable and it is executed
+avoids absurd copy-and-paste of code; suppose that a particular piece of code is vulnerable and it is executed
 before every method in your code, if you refactored your code well, then you will need to fix your code only once, otherwise
-if you applied the copy and paste ``technique'' you will need to fix the code before every function, and it is likely that you will forget some occurrences and the flaw will remain in your code; for this reason refactoring is extremely important.\\
+if you applied the copy-and-paste ``technique'' you will need to fix the code before every function, and it is likely that you will forget some occurrences and the flaw will remain in your code; for this reason refactoring is extremely important.\\
 Thus even the maintenance of software plays an important role on its security and this should make us consider that every
 aspects in software development, even little details, should be treated with particular care in order to produce secure software.
