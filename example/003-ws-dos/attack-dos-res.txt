@@ -1,0 +1,21 @@
+37
+46
+60
+38
+37
+49
+39
+
+during the attack the client was not able to connect to the server
+
+Attacker:
+Windows 10 Pro 64-bit
+Intel Core i5 3570K 3.40Ghz Ivy Bridge 22nm
+8GB RAM DDR3 666Mhz
+Linksys RangePlus Wireless USB Network Adapter - IEEE 802.11 b/g
+
+Server:
+Windows 10 Pro 64-bit
+Intel Core i5 3230M 2.60Ghz
+4GB RAM DDR4 798Mhz
+Broadcom 802.11n Network Adapter - IEEE 802.11 a/b/g/n
